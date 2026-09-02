@@ -1,32 +1,39 @@
-// Main Application Coordinator, Live Clock, Home View & Sizable Layout Engine
-class App {
+// Networking Academy Pro — Main E-Learning Application & State Controller
+class NetworkingApp {
   constructor() {
     this.currentView = "home"; // 'home' or 'module'
     this.currentModuleIndex = 0;
     this.selectedDeviceId = "endpoint-pc";
     this.completedModules = JSON.parse(localStorage.getItem("net_completed_modules") || "[]");
+    this.userXP = parseInt(localStorage.getItem("net_user_xp") || "120", 10);
     this.terminalInstance = null;
+    
     this.init();
   }
 
   init() {
     this.startLiveClock();
-    this.renderNavigation();
     this.initTerminal();
     this.initSizableLayout();
     this.bindGlobalEvents();
     this.applyTheme();
+    this.renderNavigation();
     this.handleInitialRoute();
+    this.updateUserStats();
   }
 
   startLiveClock() {
     const clockEl = document.getElementById("header-live-clock");
     const update = () => {
       const now = new Date();
-      const localStr = now.toLocaleTimeString();
+      const localStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       const utcStr = now.toISOString().substring(11, 19) + " UTC";
       if (clockEl) {
-        clockEl.innerHTML = `<span class="clock-icon">⏱️</span> <span class="clock-local">${localStr}</span> <span class="clock-utc">(${utcStr})</span>`;
+        clockEl.innerHTML = `
+          <span class="clock-live-pulse"></span>
+          <span class="clock-local">${localStr}</span>
+          <span class="clock-utc">(${utcStr})</span>
+        `;
       }
     };
     update();
@@ -51,12 +58,11 @@ class App {
 
   showHomeView(updateHash = true) {
     this.currentView = "home";
-    if (updateHash) window.location.hash = "home";
+    if (updateHash) {
+      window.location.hash = "home";
+    }
 
-    // Update nav active buttons
-    document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("nav-active"));
-    const homeNavBtn = document.getElementById("nav-item-home");
-    if (homeNavBtn) homeNavBtn.classList.add("nav-active");
+    this.renderNavigation();
 
     const contentArea = document.getElementById("module-content-area");
     if (!contentArea) return;
@@ -64,83 +70,104 @@ class App {
     const device = window.NETWORK_DEVICES.find(d => d.id === this.selectedDeviceId) || window.NETWORK_DEVICES[0];
 
     contentArea.innerHTML = `
-      <!-- Hero Welcome Banner -->
-      <div class="home-hero-card">
-        <div class="hero-left">
-          <span class="hero-badge">⚡ Networking Academy — Level 0 to 1</span>
-          <h2>Computer Networking from Ground Zero to Engineering Mastery</h2>
-          <p class="hero-desc">
-            Understand every wire, chip, and protocol powering the modern Internet. Start with concrete physical hardware and devices before diving into binary packets, subnetting, VLANs, and TCP handshakes.
+      <!-- Dribbble E-Learning Hero Dashboard -->
+      <div class="dribbble-hero-banner">
+        <div class="hero-content">
+          <div class="hero-chip-badge">
+            <span class="chip-star">✨</span> Foundational Networking Series
+          </div>
+          <h2 class="hero-title">Master Computer Networking from Ground Zero</h2>
+          <p class="hero-subtitle">
+            Explore physical hardware, silicon architecture, packet dissections, subnetting math, and VLAN trunking with live interactive visualizers and an embedded Linux terminal.
           </p>
-          <div class="hero-actions">
-            <button class="btn-hero-primary" onclick="App.loadModule(0, true)">
-              Start Learning Journey (Module 0) ➔
+          <div class="hero-action-group">
+            <button class="btn-dribbble-primary" id="btn-start-course">
+              <span>Start Course (Module 0)</span>
+              <span class="btn-arrow">➔</span>
             </button>
-            <button class="btn-hero-secondary" onclick="document.getElementById('hardware-catalog-section').scrollIntoView({behavior: 'smooth'})">
-              Explore Network Hardware & Media 🗄️
+            <button class="btn-dribbble-secondary" id="btn-browse-hardware">
+              <span>Explore Hardware Catalog</span>
             </button>
           </div>
         </div>
-        <div class="hero-stats-badge">
-          <div class="stat-box"><strong>9</strong><span>Interactive Modules</span></div>
-          <div class="stat-box"><strong>7</strong><span>Visual Simulators</span></div>
-          <div class="stat-box"><strong>100%</strong><span>Zero Buzzwords</span></div>
+
+        <div class="hero-stats-panel">
+          <div class="stat-pill-card">
+            <div class="stat-num">9</div>
+            <div class="stat-label">Modules</div>
+          </div>
+          <div class="stat-pill-card">
+            <div class="stat-num">7</div>
+            <div class="stat-label">Simulators</div>
+          </div>
+          <div class="stat-pill-card">
+            <div class="stat-num" id="hero-xp-display">${this.userXP}</div>
+            <div class="stat-label">XP Earned</div>
+          </div>
         </div>
       </div>
 
-      <!-- Interactive Network Blueprint Architecture Diagram -->
-      <section class="home-section">
-        <div class="section-title-row">
+      <!-- Interactive Network Blueprint Section -->
+      <section class="dribbble-section" id="section-blueprint">
+        <div class="section-header-modern">
           <div>
-            <h3>🏢 Modern Enterprise & Home Network Blueprint</h3>
-            <p style="color:var(--text-muted); font-size:0.88rem;">Click any physical hardware component in the architectural blueprint or catalog below to inspect its specifications:</p>
+            <span class="section-tag">Interactive Blueprint</span>
+            <h3>Enterprise Network Architecture</h3>
+            <p>Click any physical network node below to inspect its Layer, hardware anatomy, ports, and protocols:</p>
           </div>
         </div>
 
-        <div class="network-blueprint-card">
-          <div class="blueprint-flow">
+        <div class="modern-blueprint-container">
+          <div class="blueprint-stream-flow">
             
-            <div class="bp-stage">
-              <span class="bp-stage-label">WAN / Internet Edge</span>
-              <div class="bp-node ${this.selectedDeviceId === 'modem' ? 'bp-active' : ''}" onclick="App.selectDevice('modem')">
-                <span class="bp-icon">📡</span>
-                <strong>Fiber ONT / Modem</strong>
-                <small>Optical ➔ Ethernet</small>
-              </div>
+            <div class="stream-node-box ${this.selectedDeviceId === 'modem' ? 'node-selected' : ''}" data-device-id="modem">
+              <span class="node-layer-badge">Layer 1/2</span>
+              <div class="node-icon-bubble">📡</div>
+              <strong>Fiber ONT / Modem</strong>
+              <small>Optical ➔ Ethernet</small>
             </div>
 
-            <div class="bp-arrow">➔</div>
-
-            <div class="bp-stage">
-              <span class="bp-stage-label">L3 Boundary</span>
-              <div class="bp-node ${this.selectedDeviceId === 'router' ? 'bp-active' : ''}" onclick="App.selectDevice('router')">
-                <span class="bp-icon">🌐</span>
-                <strong>Gateway Router</strong>
-                <small>NAT & Routing Table</small>
-              </div>
+            <div class="stream-connector-line">
+              <span class="packet-spark"></span>
             </div>
 
-            <div class="bp-arrow">➔</div>
-
-            <div class="bp-stage">
-              <span class="bp-stage-label">L2 Core Distribution</span>
-              <div class="bp-node ${this.selectedDeviceId === 'switch-l2' ? 'bp-active' : ''}" onclick="App.selectDevice('switch-l2')">
-                <span class="bp-icon">🔀</span>
-                <strong>PoE Switch (802.1Q)</strong>
-                <small>MAC Forwarding & VLANs</small>
-              </div>
+            <div class="stream-node-box ${this.selectedDeviceId === 'router' ? 'node-selected' : ''}" data-device-id="router">
+              <span class="node-layer-badge">Layer 3</span>
+              <div class="node-icon-bubble">🌐</div>
+              <strong>Gateway Router</strong>
+              <small>NAT & Routing Table</small>
             </div>
 
-            <div class="bp-arrow">➔</div>
+            <div class="stream-connector-line">
+              <span class="packet-spark"></span>
+            </div>
 
-            <div class="bp-stage">
-              <span class="bp-stage-label">Connected Endpoints</span>
-              <div class="bp-endpoints-stack">
-                <div class="bp-mini-node ${this.selectedDeviceId === 'endpoint-pc' ? 'bp-active' : ''}" onclick="App.selectDevice('endpoint-pc')">💻 Workstation</div>
-                <div class="bp-mini-node ${this.selectedDeviceId === 'server' ? 'bp-active' : ''}" onclick="App.selectDevice('server')">🗄️ Rack Server</div>
-                <div class="bp-mini-node ${this.selectedDeviceId === 'voip-phone' ? 'bp-active' : ''}" onclick="App.selectDevice('voip-phone')">📞 VoIP Phone (PoE)</div>
-                <div class="bp-mini-node ${this.selectedDeviceId === 'ip-camera' ? 'bp-active' : ''}" onclick="App.selectDevice('ip-camera')">📹 CCTV Camera (PoE)</div>
-                <div class="bp-mini-node ${this.selectedDeviceId === 'printer' ? 'bp-active' : ''}" onclick="App.selectDevice('printer')">🖨️ Network Printer</div>
+            <div class="stream-node-box ${this.selectedDeviceId === 'switch-l2' ? 'node-selected' : ''}" data-device-id="switch-l2">
+              <span class="node-layer-badge">Layer 2</span>
+              <div class="node-icon-bubble">🔀</div>
+              <strong>Managed Switch</strong>
+              <small>802.1Q VLANs & MAC</small>
+            </div>
+
+            <div class="stream-connector-line">
+              <span class="packet-spark"></span>
+            </div>
+
+            <div class="stream-cluster-stack">
+              <div class="cluster-mini-card ${this.selectedDeviceId === 'endpoint-pc' ? 'cluster-active' : ''}" data-device-id="endpoint-pc">
+                <span>💻 Workstations</span>
+              </div>
+              <div class="cluster-mini-card ${this.selectedDeviceId === 'server' ? 'cluster-active' : ''}" data-device-id="server">
+                <span>🗄️ Rack Servers</span>
+              </div>
+              <div class="cluster-mini-card ${this.selectedDeviceId === 'voip-phone' ? 'cluster-active' : ''}" data-device-id="voip-phone">
+                <span>📞 VoIP Phones</span>
+              </div>
+              <div class="cluster-mini-card ${this.selectedDeviceId === 'ip-camera' ? 'cluster-active' : ''}" data-device-id="ip-camera">
+                <span>📹 IP Cameras</span>
+              </div>
+              <div class="cluster-mini-card ${this.selectedDeviceId === 'printer' ? 'cluster-active' : ''}" data-device-id="printer">
+                <span>🖨️ Laser Printers</span>
               </div>
             </div>
 
@@ -148,86 +175,111 @@ class App {
         </div>
       </section>
 
-      <!-- Hardware & Media Catalog Dissector -->
-      <section class="home-section" id="hardware-catalog-section">
-        <div class="section-title-row">
+      <!-- Hardware Catalog Section -->
+      <section class="dribbble-section" id="section-hardware">
+        <div class="section-header-modern">
           <div>
-            <h3>📦 Physical Hardware & Cabling Media Catalog</h3>
-            <p style="color:var(--text-muted); font-size:0.88rem;">Select a device to view its internal anatomy, OSI layer, typical port numbers, and networking roles:</p>
+            <span class="section-tag">Hardware Catalog</span>
+            <h3>Physical Devices & Cabling Media</h3>
+            <p>Select any device to dissect its internal silicon architecture, kernel path, and typical port specs:</p>
           </div>
         </div>
 
-        <div class="devices-catalog-grid">
+        <div class="hardware-cards-carousel">
           ${window.NETWORK_DEVICES.map(d => `
-            <div class="device-thumb-card ${d.id === this.selectedDeviceId ? 'dev-card-active' : ''}" onclick="App.selectDevice('${d.id}')">
-              <div class="thumb-icon">${d.icon}</div>
-              <strong>${d.name}</strong>
-              <small class="thumb-cat">${d.category}</small>
-              <span class="thumb-layer">${d.osiLayer.split(' ')[0]} ${d.osiLayer.split(' ')[1] || ''}</span>
+            <div class="device-card-dribbble ${d.id === this.selectedDeviceId ? 'card-selected' : ''}" data-device-id="${d.id}">
+              <div class="dribbble-card-top">
+                <span class="device-layer-pill">${d.osiLayer.split(' ')[0]}</span>
+                <span class="device-cat-pill">${d.category.split(' ')[0]}</span>
+              </div>
+              <div class="card-icon-big">${d.icon}</div>
+              <strong class="card-device-name">${d.name}</strong>
+              <p class="card-device-desc">${d.tagline}</p>
+              <div class="card-action-bar">
+                <span>Inspect Device ➔</span>
+              </div>
             </div>
           `).join('')}
         </div>
 
-        <!-- Selected Device Detail Viewer -->
-        <div class="device-detail-card" id="selected-device-detail-box">
-          <div class="detail-header">
-            <div class="detail-title-group">
-              <span class="detail-icon">${device.icon}</span>
+        <!-- Selected Device Anatomy Inspector -->
+        <div class="device-inspector-dribbble" id="device-inspector-anchor">
+          <div class="inspector-header">
+            <div class="inspector-title-row">
+              <span class="inspector-big-icon">${device.icon}</span>
               <div>
                 <h4>${device.name}</h4>
-                <span class="detail-category">${device.category} &bull; <strong style="color:var(--accent-primary)">${device.osiLayer}</strong></span>
+                <div class="inspector-badges">
+                  <span class="badge-accent">${device.category}</span>
+                  <span class="badge-layer">${device.osiLayer}</span>
+                </div>
               </div>
             </div>
-            <button class="btn-vis btn-subtle" onclick="TerminalApp.runSampleCommand('ping 192.168.1.1')">
-              Test Connection in Terminal ↵
+            <button class="btn-dribbble-secondary btn-term-ping" data-cmd="ping 192.168.1.1">
+              <span>Ping in Terminal ↵</span>
             </button>
           </div>
 
-          <p class="detail-tagline">${device.tagline}</p>
+          <p class="inspector-tagline">${device.tagline}</p>
 
-          <div class="detail-grid">
-            <div class="detail-pane">
-              <strong>Core Engineering Role:</strong>
+          <div class="inspector-body-grid">
+            <div class="inspector-left-col">
+              <h5>Core Engineering Role</h5>
               <p>${device.role}</p>
 
-              <strong style="margin-top:14px; display:block;">Physical & Kernel Anatomy:</strong>
-              <div class="anatomy-list">${device.anatomy}</div>
+              <h5 style="margin-top:16px;">Physical Silicon & Kernel Anatomy</h5>
+              <div class="anatomy-rich-list">${device.anatomy}</div>
             </div>
 
-            <div class="detail-pane">
-              <strong>Technical Specifications:</strong>
-              <table class="specs-table">
-                <tr><td><strong>Addressing:</strong></td><td>${device.specs.addressing}</td></tr>
-                <tr><td><strong>Physical Interfaces:</strong></td><td>${device.specs.interfaces}</td></tr>
-                <tr><td><strong>Typical Ports:</strong></td><td><code>${device.specs.typicalPorts}</code></td></tr>
-                <tr><td><strong>Protocols Used:</strong></td><td><code>${device.specs.protocols}</code></td></tr>
-              </table>
+            <div class="inspector-right-col">
+              <h5>Technical Specifications</h5>
+              <div class="specs-grid-dribbble">
+                <div class="spec-row">
+                  <span class="spec-label">Addressing:</span>
+                  <span class="spec-value">${device.specs.addressing}</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">Interfaces:</span>
+                  <span class="spec-value">${device.specs.interfaces}</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">Typical Ports:</span>
+                  <span class="spec-value"><code>${device.specs.typicalPorts}</code></span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">Protocols:</span>
+                  <span class="spec-value"><code>${device.specs.protocols}</code></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Learning Journey Path Roadmap -->
-      <section class="home-section">
-        <div class="section-title-row">
+      <!-- Learning Roadmap Overview -->
+      <section class="dribbble-section">
+        <div class="section-header-modern">
           <div>
-            <h3>🗺️ Learning Journey Roadmap</h3>
-            <p style="color:var(--text-muted); font-size:0.88rem;">The progressive path from physical hardware to advanced web protocols and diagnostic labs:</p>
+            <span class="section-tag">Learning Journey</span>
+            <h3>Course Curriculum Roadmap</h3>
+            <p>Step-by-step engineering lessons with zero buzzwords:</p>
           </div>
         </div>
 
-        <div class="journey-roadmap-grid">
+        <div class="course-modules-grid">
           ${window.CURRICULUM.map((mod, idx) => {
             const isCompleted = this.completedModules.includes(mod.id);
             return `
-              <div class="roadmap-card" onclick="App.loadModule(${idx}, true)">
-                <div class="road-num">Step ${idx}</div>
-                <div class="road-icon">${mod.icon}</div>
-                <strong>${mod.title}</strong>
-                <p>${mod.tagline}</p>
-                <div class="road-footer">
-                  <span class="road-action">Start Lesson ➔</span>
-                  ${isCompleted ? '<span class="road-done">✓ Completed</span>' : ''}
+              <div class="module-roadmap-card ${isCompleted ? 'module-done' : ''}" data-mod-idx="${idx}">
+                <div class="module-card-top">
+                  <span class="module-step-badge">Module ${idx}</span>
+                  ${isCompleted ? '<span class="status-pill-completed">✓ Completed</span>' : '<span class="status-pill-ready">Ready</span>'}
+                </div>
+                <div class="module-icon-wrap">${mod.icon}</div>
+                <strong class="module-title-text">${mod.title}</strong>
+                <p class="module-desc-text">${mod.tagline}</p>
+                <div class="module-card-footer">
+                  <span class="start-text">${isCompleted ? 'Review Module ➔' : 'Start Module ➔'}</span>
                 </div>
               </div>
             `;
@@ -236,13 +288,43 @@ class App {
       </section>
     `;
 
+    // Bind Home Page Events
+    document.getElementById("btn-start-course")?.addEventListener("click", () => this.loadModule(0, true));
+    document.getElementById("btn-browse-hardware")?.addEventListener("click", () => {
+      document.getElementById("section-hardware")?.scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Device click events on blueprint and catalog
+    contentArea.querySelectorAll("[data-device-id]").forEach(el => {
+      el.addEventListener("click", () => {
+        const devId = el.getAttribute("data-device-id");
+        this.selectDevice(devId);
+      });
+    });
+
+    // Module roadmap card clicks
+    contentArea.querySelectorAll("[data-mod-idx]").forEach(card => {
+      card.addEventListener("click", () => {
+        const idx = parseInt(card.getAttribute("data-mod-idx"), 10);
+        this.loadModule(idx, true);
+      });
+    });
+
+    // Terminal ping button
+    contentArea.querySelectorAll(".btn-term-ping").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cmd = btn.getAttribute("data-cmd");
+        if (this.terminalInstance) this.terminalInstance.runSampleCommand(cmd);
+      });
+    });
+
     document.querySelector(".main-content").scrollTop = 0;
   }
 
   selectDevice(deviceId) {
     this.selectedDeviceId = deviceId;
     this.showHomeView(false);
-    const detailBox = document.getElementById("selected-device-detail-box");
+    const detailBox = document.getElementById("device-inspector-anchor");
     if (detailBox) detailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
@@ -251,20 +333,22 @@ class App {
     if (!navContainer) return;
 
     let html = `
-      <button class="nav-item ${this.currentView === 'home' ? 'nav-active' : ''}" id="nav-item-home" onclick="App.showHomeView(true)">
+      <button class="nav-item ${this.currentView === 'home' ? 'nav-active' : ''}" id="nav-item-home">
         <span class="nav-icon">🏠</span>
         <div class="nav-text">
-          <span class="nav-short">Home & Hardware Catalog</span>
+          <span class="nav-short">Home & Hardware</span>
           <small class="nav-tagline">Devices, Cables & Blueprint</small>
         </div>
       </button>
       <div class="sidebar-divider"></div>
+      <div class="sidebar-subheading">Core Modules (0–8)</div>
     `;
 
     html += window.CURRICULUM.map((mod, idx) => {
       const isCompleted = this.completedModules.includes(mod.id);
+      const isActive = this.currentView === 'module' && idx === this.currentModuleIndex;
       return `
-        <button class="nav-item ${this.currentView === 'module' && idx === this.currentModuleIndex ? 'nav-active' : ''}" data-index="${idx}" data-id="${mod.id}" onclick="App.loadModule(${idx}, true)">
+        <button class="nav-item ${isActive ? 'nav-active' : ''}" data-index="${idx}" data-id="${mod.id}">
           <span class="nav-icon">${mod.icon}</span>
           <div class="nav-text">
             <span class="nav-short">${mod.shortTitle}</span>
@@ -276,6 +360,16 @@ class App {
     }).join('');
 
     navContainer.innerHTML = html;
+
+    // Direct event listener binding
+    document.getElementById("nav-item-home")?.addEventListener("click", () => this.showHomeView(true));
+    navContainer.querySelectorAll(".nav-item[data-index]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-index"), 10);
+        this.loadModule(idx, true);
+      });
+    });
+
     this.updateProgressBadge();
   }
 
@@ -291,7 +385,6 @@ class App {
 
     this.renderNavigation();
 
-    // Render Module Content
     const contentArea = document.getElementById("module-content-area");
     if (!contentArea) return;
 
@@ -316,17 +409,18 @@ class App {
 
       if (sec.quiz) {
         extraHtml += `
-          <div class="quiz-card" id="quiz-${mod.id}-${sIdx}">
-            <div class="quiz-badge">🧠 Knowledge Check</div>
-            <div class="quiz-question">${sec.quiz.question}</div>
-            <div class="quiz-options">
+          <div class="quiz-card-dribbble" id="quiz-${mod.id}-${sIdx}">
+            <div class="quiz-badge-modern">🧠 Knowledge Check &bull; +50 XP</div>
+            <div class="quiz-question-modern">${sec.quiz.question}</div>
+            <div class="quiz-options-group">
               ${sec.quiz.options.map((opt, optIdx) => `
-                <button class="quiz-opt-btn" data-mod="${mod.id}" data-sec="${sIdx}" data-opt="${optIdx}">
-                  ${opt.text}
+                <button class="quiz-option-card" data-mod="${mod.id}" data-sec="${sIdx}" data-opt="${optIdx}">
+                  <span class="opt-bullet">${String.fromCharCode(65 + optIdx)}</span>
+                  <span class="opt-text">${opt.text}</span>
                 </button>
               `).join('')}
             </div>
-            <div class="quiz-feedback" id="feedback-${mod.id}-${sIdx}"></div>
+            <div class="quiz-feedback-modern" id="feedback-${mod.id}-${sIdx}"></div>
           </div>
         `;
       }
@@ -340,34 +434,43 @@ class App {
       `;
     }).join('');
 
-    // Footer navigation with Mark Complete / Next
+    // Footer navigation
     const isLast = index === window.CURRICULUM.length - 1;
     const isCompleted = this.completedModules.includes(mod.id);
 
     const footerHtml = `
-      <div class="module-footer">
-        <button class="btn-footer btn-subtle" id="btn-prev-mod" ${index === 0 ? 'disabled' : ''}>
+      <div class="module-footer-modern">
+        <button class="btn-dribbble-secondary" id="btn-prev-mod" ${index === 0 ? 'disabled' : ''}>
           🡄 Previous Module
         </button>
-        <div class="footer-center">
-          <button class="btn-footer ${isCompleted ? 'btn-completed' : 'btn-accent'}" id="btn-complete-mod">
-            ${isCompleted ? '✓ Completed' : 'Mark as Learned ✓'}
+        <div class="footer-center-group">
+          <button class="btn-complete-status ${isCompleted ? 'is-completed' : ''}" id="btn-complete-mod">
+            ${isCompleted ? '✓ Completed (+100 XP)' : 'Mark as Learned ✓ (+100 XP)'}
           </button>
         </div>
-        <button class="btn-footer btn-primary" id="btn-next-mod" ${isLast ? 'disabled' : ''}>
-          ${isLast ? 'Finished Curriculum 🎉' : 'Next Module 🡆'}
+        <button class="btn-dribbble-primary" id="btn-next-mod">
+          <span>${isLast ? 'Complete Course 🎉' : 'Next Module 🡆'}</span>
         </button>
       </div>
     `;
 
     contentArea.innerHTML = `
-      <div class="module-header-hero">
-        <div class="hero-badge">
-          <span class="hero-icon">${mod.icon}</span>
-          <span>Module ${index} of ${window.CURRICULUM.length - 1}</span>
+      <!-- Breadcrumb Bar -->
+      <div class="breadcrumb-bar">
+        <span class="crumb-link" id="crumb-home">🏠 Home</span>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-current">Module ${index}: ${mod.shortTitle}</span>
+      </div>
+
+      <!-- Dribbble Style Module Header Hero -->
+      <div class="module-hero-banner">
+        <div class="mod-badge-row">
+          <span class="mod-badge-pill">${mod.icon} Module ${index} of ${window.CURRICULUM.length - 1}</span>
+          <span class="mod-time-pill">⏱️ ~12 min read</span>
+          <span class="mod-xp-pill">⚡ 150 XP</span>
         </div>
         <h2>${mod.title}</h2>
-        <p class="hero-tagline">${mod.tagline}</p>
+        <p class="mod-hero-tagline">${mod.tagline}</p>
       </div>
 
       <div class="module-sections-wrap">
@@ -377,25 +480,27 @@ class App {
       ${footerHtml}
     `;
 
-    // Bind footer navigation
-    const prevBtn = document.getElementById("btn-prev-mod");
-    const nextBtn = document.getElementById("btn-next-mod");
-    const completeBtn = document.getElementById("btn-complete-mod");
+    // Bind event listeners
+    document.getElementById("crumb-home")?.addEventListener("click", () => this.showHomeView(true));
+    document.getElementById("btn-prev-mod")?.addEventListener("click", () => this.loadModule(this.currentModuleIndex - 1, true));
+    document.getElementById("btn-next-mod")?.addEventListener("click", () => {
+      if (isLast) {
+        this.showHomeView(true);
+      } else {
+        this.loadModule(this.currentModuleIndex + 1, true);
+      }
+    });
 
-    if (prevBtn) prevBtn.addEventListener("click", () => this.loadModule(this.currentModuleIndex - 1, true));
-    if (nextBtn) nextBtn.addEventListener("click", () => this.loadModule(this.currentModuleIndex + 1, true));
-    if (completeBtn) {
-      completeBtn.addEventListener("click", () => {
-        this.toggleModuleCompleted(mod.id);
-      });
-    }
+    document.getElementById("btn-complete-mod")?.addEventListener("click", () => {
+      this.toggleModuleCompleted(mod.id);
+    });
 
     // Bind Quiz Option Click Handlers
-    contentArea.querySelectorAll(".quiz-opt-btn").forEach(btn => {
+    contentArea.querySelectorAll(".quiz-option-card").forEach(btn => {
       btn.addEventListener("click", () => {
-        const modId = btn.dataset.mod;
-        const secIdx = parseInt(btn.dataset.sec, 10);
-        const optIdx = parseInt(btn.dataset.opt, 10);
+        const modId = btn.getAttribute("data-mod");
+        const secIdx = parseInt(btn.getAttribute("data-sec"), 10);
+        const optIdx = parseInt(btn.getAttribute("data-opt"), 10);
         this.handleQuizAnswer(modId, secIdx, optIdx);
       });
     });
@@ -403,9 +508,8 @@ class App {
     // Mount visualizers
     this.mountVisualizers(mod);
 
-    // Scroll to top of content
-    const scrollContainer = document.querySelector(".main-content");
-    if (scrollContainer) scrollContainer.scrollTop = 0;
+    // Scroll to top
+    document.querySelector(".main-content").scrollTop = 0;
   }
 
   handleQuizAnswer(modId, secIdx, optIdx) {
@@ -420,16 +524,64 @@ class App {
 
     if (!quizCard || !feedbackEl) return;
 
-    // Reset option classes
-    quizCard.querySelectorAll(".quiz-opt-btn").forEach((b, idx) => {
+    quizCard.querySelectorAll(".quiz-option-card").forEach((b, idx) => {
       b.classList.remove("opt-correct", "opt-incorrect");
       if (idx === optIdx) {
         b.classList.add(opt.correct ? "opt-correct" : "opt-incorrect");
       }
     });
 
-    feedbackEl.className = `quiz-feedback ${opt.correct ? 'feedback-correct' : 'feedback-incorrect'}`;
+    feedbackEl.className = `quiz-feedback-modern ${opt.correct ? 'feedback-correct' : 'feedback-incorrect'}`;
     feedbackEl.innerHTML = opt.feedback;
+
+    if (opt.correct) {
+      this.addXP(50);
+    }
+  }
+
+  addXP(amount) {
+    this.userXP += amount;
+    localStorage.setItem("net_user_xp", this.userXP);
+    this.updateUserStats();
+  }
+
+  updateUserStats() {
+    const xpBadge = document.getElementById("header-user-xp");
+    if (xpBadge) xpBadge.textContent = `${this.userXP} XP`;
+    const heroXP = document.getElementById("hero-xp-display");
+    if (heroXP) heroXP.textContent = this.userXP;
+  }
+
+  toggleModuleCompleted(modId) {
+    if (this.completedModules.includes(modId)) {
+      this.completedModules = this.completedModules.filter(id => id !== modId);
+    } else {
+      this.completedModules.push(modId);
+      this.addXP(100);
+    }
+    localStorage.setItem("net_completed_modules", JSON.stringify(this.completedModules));
+    this.renderNavigation();
+    this.loadModule(this.currentModuleIndex, false);
+  }
+
+  markChallengeComplete(challengeId) {
+    if (!this.completedModules.includes(`challenge-${challengeId}`)) {
+      this.completedModules.push(`challenge-${challengeId}`);
+      localStorage.setItem("net_completed_modules", JSON.stringify(this.completedModules));
+      this.addXP(150);
+      this.updateProgressBadge();
+    }
+  }
+
+  updateProgressBadge() {
+    const total = window.CURRICULUM.length;
+    const done = this.completedModules.filter(id => id.startsWith("module-")).length;
+    const pct = Math.round((done / total) * 100);
+
+    const progressEl = document.getElementById("curriculum-progress-pct");
+    const barEl = document.getElementById("curriculum-progress-bar");
+    if (progressEl) progressEl.textContent = `${pct}%`;
+    if (barEl) barEl.style.width = `${pct}%`;
   }
 
   mountVisualizers(mod) {
@@ -456,7 +608,6 @@ class App {
     const termMount = document.getElementById("terminal-mount");
     if (termMount && window.TerminalApp) {
       this.terminalInstance = new window.TerminalApp("terminal-mount");
-      window.TerminalApp = this.terminalInstance;
     }
   }
 
@@ -466,17 +617,15 @@ class App {
     const resizerLeft = document.getElementById("resizer-left");
     const resizerRight = document.getElementById("resizer-right");
 
-    // Load saved widths
     const savedSidebarWidth = localStorage.getItem("net_sidebar_width");
     const savedTerminalWidth = localStorage.getItem("net_terminal_width");
 
     if (savedSidebarWidth && sidebar) sidebar.style.width = `${savedSidebarWidth}px`;
     if (savedTerminalWidth && terminal) terminal.style.width = `${savedTerminalWidth}px`;
 
-    // Left Resizer Drag (Sidebar)
+    // Left Resizer Drag
     if (resizerLeft && sidebar) {
       let isDraggingLeft = false;
-
       resizerLeft.addEventListener("mousedown", () => {
         isDraggingLeft = true;
         document.body.classList.add("resizing-horizontal");
@@ -485,7 +634,7 @@ class App {
 
       window.addEventListener("mousemove", (e) => {
         if (!isDraggingLeft) return;
-        const newWidth = Math.min(Math.max(e.clientX, 180), 450);
+        const newWidth = Math.min(Math.max(e.clientX, 200), 480);
         sidebar.style.width = `${newWidth}px`;
         localStorage.setItem("net_sidebar_width", newWidth);
       });
@@ -499,10 +648,9 @@ class App {
       });
     }
 
-    // Right Resizer Drag (Terminal Panel)
+    // Right Resizer Drag
     if (resizerRight && terminal) {
       let isDraggingRight = false;
-
       resizerRight.addEventListener("mousedown", () => {
         isDraggingRight = true;
         document.body.classList.add("resizing-horizontal");
@@ -512,7 +660,7 @@ class App {
       window.addEventListener("mousemove", (e) => {
         if (!isDraggingRight) return;
         const windowWidth = window.innerWidth;
-        const newWidth = Math.min(Math.max(windowWidth - e.clientX, 280), 800);
+        const newWidth = Math.min(Math.max(windowWidth - e.clientX, 280), 820);
         terminal.style.width = `${newWidth}px`;
         localStorage.setItem("net_terminal_width", newWidth);
       });
@@ -527,38 +675,8 @@ class App {
     }
   }
 
-  toggleModuleCompleted(modId) {
-    if (this.completedModules.includes(modId)) {
-      this.completedModules = this.completedModules.filter(id => id !== modId);
-    } else {
-      this.completedModules.push(modId);
-    }
-    localStorage.setItem("net_completed_modules", JSON.stringify(this.completedModules));
-    this.renderNavigation();
-    this.loadModule(this.currentModuleIndex, false);
-  }
-
-  markChallengeComplete(challengeId) {
-    if (!this.completedModules.includes(`challenge-${challengeId}`)) {
-      this.completedModules.push(`challenge-${challengeId}`);
-      localStorage.setItem("net_completed_modules", JSON.stringify(this.completedModules));
-      this.updateProgressBadge();
-    }
-  }
-
-  updateProgressBadge() {
-    const total = window.CURRICULUM.length;
-    const done = this.completedModules.filter(id => id.startsWith("module-")).length;
-    const pct = Math.round((done / total) * 100);
-
-    const progressEl = document.getElementById("curriculum-progress-pct");
-    const barEl = document.getElementById("curriculum-progress-bar");
-    if (progressEl) progressEl.textContent = `${pct}%`;
-    if (barEl) barEl.style.width = `${pct}%`;
-  }
-
   bindGlobalEvents() {
-    // Hash change routing
+    // Hash routing
     window.addEventListener("hashchange", () => {
       const hash = window.location.hash.replace("#", "");
       if (hash === "home" || !hash) {
@@ -571,7 +689,7 @@ class App {
       }
     });
 
-    // Terminal side-by-side toggle
+    // Terminal side toggle
     const toggleBtn = document.getElementById("btn-toggle-terminal");
     const terminalPanel = document.getElementById("terminal-panel");
     const resizerRight = document.getElementById("resizer-right");
@@ -607,7 +725,7 @@ class App {
   }
 }
 
-// Global initialization on DOM ready
+// Global initialization
 document.addEventListener("DOMContentLoaded", () => {
-  window.App = new App();
+  window.app = new NetworkingApp();
 });
