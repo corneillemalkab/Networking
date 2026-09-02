@@ -3,30 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Networking Academy — Professional Systems & Interactive Network Sandbox</title>
-  <meta name="description" content="A professional, visual, and zero-buzzword interactive networking academy for new engineers with hardware anatomy, real packet animations, and in-browser terminal practice." />
+  <title>Networking Academy Pro — Visual Engineering & Interactive Network Sandbox</title>
+  <meta name="description" content="A professional, visual, zero-buzzword interactive networking engineering academy for modern developers with hardware anatomy, packet animations, and an in-browser Linux terminal." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body data-theme="dark">
 
   <!-- Top Application Bar -->
   <header class="app-header">
-    <div class="brand">
-      <span class="brand-icon" onclick="App.showHomeView(true)" style="cursor:pointer;" title="Return to Home">⚡</span>
-      <div class="brand-text" onclick="App.showHomeView(true)" style="cursor:pointer;">
-        <h1>Networking Academy <span style="font-weight: normal; opacity: 0.7;">| Level 0 to 1</span></h1>
+    <div class="brand" onclick="App.showHomeView(true)" style="cursor:pointer;" title="Return to Home">
+      <div class="brand-emblem">⚡</div>
+      <div class="brand-text">
+        <h1>Networking Academy <span class="pro-badge">PRO</span></h1>
         <span class="brand-sub">Visual Hardware Engineering & Interactive Protocol Sandbox</span>
       </div>
     </div>
 
-    <!-- Live System Clock -->
+    <!-- Live System Telemetry Clock -->
     <div class="header-clock-container" id="header-live-clock">
-      <span class="clock-icon">⏱️</span> 00:00:00
+      <span class="clock-live-pulse"></span>
+      <span class="clock-local">00:00:00</span>
+      <span class="clock-utc">(00:00:00 UTC)</span>
     </div>
 
     <div class="header-right">
       <div class="progress-tracker">
-        <span>Curriculum Progress:</span>
+        <span>Progress:</span>
         <div class="progress-track-bg">
           <div class="progress-fill" id="curriculum-progress-bar"></div>
         </div>
@@ -45,7 +47,7 @@
     
     <!-- 1. Left: Sizable Sidebar Navigation -->
     <aside class="sidebar" id="app-sidebar">
-      <div class="sidebar-heading">Navigation & Curriculum</div>
+      <div class="sidebar-heading">Curriculum Navigation</div>
       <nav class="nav-modules" id="nav-modules-list">
         <!-- Dynamically rendered Home + Modules -->
       </nav>
