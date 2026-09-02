@@ -7,7 +7,9 @@ class NetworkingApp {
     this.completedModules = JSON.parse(localStorage.getItem("net_completed_modules") || "[]");
     this.userXP = parseInt(localStorage.getItem("net_user_xp") || "120", 10);
     this.terminalInstance = null;
+    this.guiConsoleInstance = null;
     this.simDashboardInstance = null;
+    this.activeRightMode = "cli"; // 'cli' or 'gui'
     
     this.init();
   }
@@ -15,6 +17,7 @@ class NetworkingApp {
   init() {
     this.startLiveClock();
     this.initTerminal();
+    this.initGUIConsole();
     this.initSizableLayout();
     this.bindGlobalEvents();
     this.applyTheme();
@@ -79,7 +82,7 @@ class NetworkingApp {
           </div>
           <h2 class="hero-title">Master Computer Networking from Ground Zero</h2>
           <p class="hero-subtitle">
-            Explore physical hardware, silicon architecture, packet dissections, subnetting math, and VLAN trunking with live interactive AI simulations and an embedded Linux terminal.
+            Explore physical hardware, silicon architecture, packet dissections, subnetting math, and VLAN trunking with live interactive AI simulations, an embedded Linux terminal, and a RouterOS Web GUI console.
           </p>
           <div class="hero-action-group">
             <button class="btn-dribbble-primary" id="btn-start-course">
@@ -630,6 +633,13 @@ class NetworkingApp {
     }
   }
 
+  initGUIConsole() {
+    const guiMount = document.getElementById("gui-console-mount");
+    if (guiMount && window.GUINetworkConsole) {
+      this.guiConsoleInstance = new window.GUINetworkConsole("gui-console-mount");
+    }
+  }
+
   initSizableLayout() {
     const sidebar = document.getElementById("app-sidebar");
     const terminal = document.getElementById("terminal-panel");
@@ -698,6 +708,28 @@ class NetworkingApp {
     // Brand click to home
     document.getElementById("brand-home-btn")?.addEventListener("click", () => this.showHomeView(true));
 
+    // Console Multi-Frame Switcher (CLI vs Web GUI)
+    const btnCli = document.getElementById("btn-mode-cli");
+    const btnGui = document.getElementById("btn-mode-gui");
+    const frameCli = document.getElementById("frame-cli-mount");
+    const frameGui = document.getElementById("frame-gui-mount");
+
+    if (btnCli && btnGui && frameCli && frameGui) {
+      btnCli.addEventListener("click", () => {
+        btnCli.classList.add("mode-active");
+        btnGui.classList.remove("mode-active");
+        frameCli.style.display = "flex";
+        frameGui.style.display = "none";
+      });
+
+      btnGui.addEventListener("click", () => {
+        btnGui.classList.add("mode-active");
+        btnCli.classList.remove("mode-active");
+        frameCli.style.display = "none";
+        frameGui.style.display = "flex";
+      });
+    }
+
     // Hash routing
     window.addEventListener("hashchange", () => {
       const hash = window.location.hash.replace("#", "");
@@ -711,7 +743,7 @@ class NetworkingApp {
       }
     });
 
-    // Terminal side toggle
+    // Console side toggle
     const toggleBtn = document.getElementById("btn-toggle-terminal");
     const terminalPanel = document.getElementById("terminal-panel");
     const resizerRight = document.getElementById("resizer-right");
@@ -720,7 +752,7 @@ class NetworkingApp {
       toggleBtn.addEventListener("click", () => {
         terminalPanel.classList.toggle("panel-collapsed");
         if (resizerRight) resizerRight.classList.toggle("resizer-hidden");
-        toggleBtn.textContent = terminalPanel.classList.contains("panel-collapsed") ? "Open Terminal 💻" : "Hide Terminal ➔";
+        toggleBtn.textContent = terminalPanel.classList.contains("panel-collapsed") ? "Open Console 🎛️" : "Hide Console ➔";
       });
     }
 

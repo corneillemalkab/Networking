@@ -38,7 +38,7 @@
 
       <button id="btn-toggle-theme" class="btn-header">☀️ Light Mode</button>
       <button id="btn-toggle-terminal" class="btn-header btn-term-toggle">
-        Hide Terminal ➔
+        Hide Console ➔
       </button>
     </div>
   </header>
@@ -65,11 +65,31 @@
     </main>
 
     <!-- Draggable Right Splitter Gutter -->
-    <div class="resizer-gutter resizer-right" id="resizer-right" title="Drag to resize terminal panel"></div>
+    <div class="resizer-gutter resizer-right" id="resizer-right" title="Drag to resize console panel"></div>
 
-    <!-- 3. Right Side: Sizable Interactive Terminal Panel -->
+    <!-- 3. Right Side: Multi-Frame Interactive Console (CLI Terminal + Web GUI) -->
     <aside class="terminal-panel" id="terminal-panel">
-      <div id="terminal-mount" style="height: 100%;"></div>
+      
+      <!-- Multi-Frame Switcher Header -->
+      <div class="side-panel-header-tabs">
+        <button class="panel-mode-btn mode-active" id="btn-mode-cli">
+          <span>💻 Linux Terminal</span>
+        </button>
+        <button class="panel-mode-btn" id="btn-mode-gui">
+          <span>🎛️ Router Web GUI</span>
+        </button>
+      </div>
+
+      <!-- Frame A: Linux CLI Terminal -->
+      <div class="console-frame-container" id="frame-cli-mount" style="flex: 1; height: calc(100% - 42px); display: flex;">
+        <div id="terminal-mount" style="height: 100%; width: 100%;"></div>
+      </div>
+
+      <!-- Frame B: Router Web GUI Console -->
+      <div class="console-frame-container" id="frame-gui-mount" style="flex: 1; height: calc(100% - 42px); display: none;">
+        <div id="gui-console-mount" style="height: 100%; width: 100%;"></div>
+      </div>
+
     </aside>
 
   </div>
@@ -88,6 +108,7 @@
   <script src="js/terminal/networkSimulator.js"></script>
   <script src="js/terminal/challenges.js"></script>
   <script src="js/terminal/terminal.js"></script>
+  <script src="js/terminal/guiNetworkConsole.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
