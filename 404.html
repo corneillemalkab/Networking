@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Networking Academy — Page Not Found</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .not-found-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .not-found-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      max-width: 500px;
+      box-shadow: var(--shadow-lg);
+    }
+    .error-code {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--accent-warm);
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+    }
+    .btn-return {
+      display: inline-block;
+      margin-top: 20px;
+      background: var(--accent-primary);
+      color: #000;
+      text-decoration: none;
+      padding: 10px 24px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="not-found-wrap">
+    <div class="not-found-card">
+      <div class="error-code">404</div>
+      <h2>Host or Route Not Found (NXDOMAIN)</h2>
+      <p style="color: var(--text-muted); margin-top: 10px;">
+        The requested networking academy page or path does not exist in the routing table.
+      </p>
+      <a href="./" class="btn-return">➔ Return to Academy Home</a>
+    </div>
+  </div>
+</body>
+</html>
