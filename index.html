@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Networking Academy Pro — Visual Engineering & Interactive Network Sandbox</title>
+  <title>Networking Academy PRO — Visual Engineering & Interactive Network Sandbox</title>
   <meta name="description" content="A professional, visual, zero-buzzword interactive networking engineering academy for modern developers with hardware anatomy, packet animations, and an in-browser Linux terminal." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -11,7 +11,7 @@
 
   <!-- Top Application Bar -->
   <header class="app-header">
-    <div class="brand" onclick="App.showHomeView(true)" style="cursor:pointer;" title="Return to Home">
+    <div class="brand" id="brand-home-btn" style="cursor:pointer;" title="Return to Home">
       <div class="brand-emblem">⚡</div>
       <div class="brand-text">
         <h1>Networking Academy <span class="pro-badge">PRO</span></h1>
@@ -27,6 +27,7 @@
     </div>
 
     <div class="header-right">
+      <div class="xp-badge-header" id="header-user-xp">120 XP</div>
       <div class="progress-tracker">
         <span>Progress:</span>
         <div class="progress-track-bg">
@@ -76,6 +77,7 @@
   <!-- Application Scripts -->
   <script src="js/data/devices.js"></script>
   <script src="js/data/curriculum.js"></script>
+  <script src="js/visualizers/networkSimulationDashboard.js"></script>
   <script src="js/visualizers/packetJourney.js"></script>
   <script src="js/visualizers/layerStack.js"></script>
   <script src="js/visualizers/subnetVisualizer.js"></script>

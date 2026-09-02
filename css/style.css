@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NETWORKING ACADEMY — PRO DRIBBBLE E-LEARNING UI DESIGN SYSTEM
+   NETWORKING ACADEMY — PRO DRIBBBLE E-LEARNING & AI SIMULATION UI DESIGN SYSTEM
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
@@ -34,6 +34,7 @@
   --accent-emerald-glow: rgba(16, 185, 129, 0.3);
   --accent-purple: #a855f7;
   --accent-rose: #f43f5e;
+  --accent-rose-glow: rgba(244, 63, 94, 0.3);
 
   /* Typography */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -488,6 +489,260 @@ body.resizing-horizontal {
 .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan); font-family: var(--font-mono); }
 .stat-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
 
+/* ==========================================================================
+   AI NETWORK SIMULATION & RISK DASHBOARD (DRIBBBLE HEALTHCARE / CLINICAL STYLE)
+   ========================================================================== */
+.dribbble-sim-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.sim-kpi-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 1fr;
+  gap: 20px;
+}
+
+.sim-kpi-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.kpi-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+
+.kpi-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+.badge-nominal { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+.badge-live { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); animation: pulse-dot 1.5s infinite; }
+.badge-warn { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); font-weight: bold; }
+.badge-danger { background: rgba(244, 63, 94, 0.2); color: var(--accent-rose); font-weight: bold; }
+
+/* Radial Gauge Styling */
+.gauge-display-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radial-gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.gauge-track {
+  fill: none;
+  stroke: var(--bg-tertiary);
+  stroke-width: 10;
+}
+
+.gauge-fill {
+  fill: none;
+  stroke: var(--accent-emerald);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+}
+
+.gauge-center-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.gauge-center-text strong {
+  font-size: 1.9rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-pure);
+  line-height: 1;
+}
+
+.gauge-center-text small { font-size: 0.9rem; color: var(--text-dim); }
+.gauge-center-text span { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
+
+.kpi-sub-stats {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  margin-top: auto;
+  font-size: 0.8rem;
+}
+
+.sub-label { color: var(--text-dim); margin-right: 4px; }
+
+/* Waveform SVG Card */
+.kpi-metric-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.metric-big { font-size: 2.2rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-pure); }
+.metric-unit { font-size: 1rem; color: var(--text-dim); font-weight: 700; }
+.metric-trend { font-size: 0.78rem; font-weight: 700; color: var(--accent-cyan); margin-left: auto; }
+.trend-positive { color: var(--accent-emerald); }
+
+.waveform-chart-container {
+  height: 60px;
+  width: 100%;
+  margin-top: auto;
+}
+.waveform-svg { width: 100%; height: 100%; overflow: visible; }
+
+.sim-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.sim-progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue)); transition: width 0.3s ease; }
+
+/* Simulation Fault Cockpit & AI Prediction */
+.sim-control-cockpit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.cockpit-left-panel, .cockpit-right-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.cockpit-title-row { margin-bottom: 16px; }
+.cockpit-tag { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-cyan); display: block; margin-bottom: 3px; }
+.cockpit-title-row h4 { font-size: 1.15rem; font-weight: 800; color: var(--text-pure); }
+
+.scenario-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.btn-scenario {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-scenario:hover { background: var(--bg-elevated); border-color: var(--border-focus); transform: translateY(-2px); }
+.scenario-active { border-color: var(--accent-cyan) !important; background: rgba(56, 189, 248, 0.12) !important; box-shadow: 0 0 14px var(--accent-cyan-glow); }
+
+.scen-icon { font-size: 1.4rem; }
+.scen-text strong { display: block; font-size: 0.82rem; color: var(--text-pure); margin-bottom: 2px; }
+.scen-text small { display: block; font-size: 0.7rem; color: var(--text-dim); line-height: 1.3; }
+
+.sim-slider-box {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-top: auto;
+}
+.slider-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; color: var(--text-muted); }
+.slider-header strong { color: var(--accent-cyan); font-family: var(--font-mono); }
+.sim-range-input { width: 100%; cursor: pointer; accent-color: var(--accent-cyan); }
+
+/* AI Root Cause Card */
+.ai-prediction-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+.ai-card-warn { border-color: var(--accent-amber) !important; background: rgba(245, 158, 11, 0.08) !important; box-shadow: 0 0 20px var(--accent-amber-glow); }
+.ai-card-danger { border-color: var(--accent-rose) !important; background: rgba(244, 63, 94, 0.1) !important; box-shadow: 0 0 20px var(--accent-rose-glow); }
+
+.ai-status-indicator { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ai-pulse-sphere { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); animation: pulse-dot 1.8s infinite; }
+.ai-status-indicator strong { font-size: 0.95rem; color: var(--text-pure); }
+
+.ai-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+.ai-remediation-box {
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  margin-top: auto;
+}
+.ai-remediation-box strong { display: block; font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 2px; }
+
+.sim-terminal-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 14px;
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.btn-sim-exec {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-medium);
+  color: var(--accent-cyan);
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--radius-xs);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-sim-exec:hover { background: var(--accent-cyan); color: #000; }
+
 /* Modern Dribbble Section Styling */
 .dribbble-section { margin-bottom: 48px; }
 .section-header-modern { margin-bottom: 22px; }
@@ -933,6 +1188,8 @@ body.resizing-horizontal {
   .terminal-panel { width: 100% !important; max-width: 100%; height: 280px; }
   .main-content { padding: 20px; }
   .dribbble-hero-banner { flex-direction: column; }
+  .sim-kpi-grid { grid-template-columns: 1fr; }
+  .sim-control-cockpit { grid-template-columns: 1fr; }
   .inspector-body-grid { grid-template-columns: 1fr; }
   .tech-comparison-grid { grid-template-columns: 1fr; }
 }

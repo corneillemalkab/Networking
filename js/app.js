@@ -7,6 +7,7 @@ class NetworkingApp {
     this.completedModules = JSON.parse(localStorage.getItem("net_completed_modules") || "[]");
     this.userXP = parseInt(localStorage.getItem("net_user_xp") || "120", 10);
     this.terminalInstance = null;
+    this.simDashboardInstance = null;
     
     this.init();
   }
@@ -74,11 +75,11 @@ class NetworkingApp {
       <div class="dribbble-hero-banner">
         <div class="hero-content">
           <div class="hero-chip-badge">
-            <span class="chip-star">✨</span> Foundational Networking Series
+            <span class="chip-star">✨</span> Foundational Systems Series
           </div>
           <h2 class="hero-title">Master Computer Networking from Ground Zero</h2>
           <p class="hero-subtitle">
-            Explore physical hardware, silicon architecture, packet dissections, subnetting math, and VLAN trunking with live interactive visualizers and an embedded Linux terminal.
+            Explore physical hardware, silicon architecture, packet dissections, subnetting math, and VLAN trunking with live interactive AI simulations and an embedded Linux terminal.
           </p>
           <div class="hero-action-group">
             <button class="btn-dribbble-primary" id="btn-start-course">
@@ -97,7 +98,7 @@ class NetworkingApp {
             <div class="stat-label">Modules</div>
           </div>
           <div class="stat-pill-card">
-            <div class="stat-num">7</div>
+            <div class="stat-num">8</div>
             <div class="stat-label">Simulators</div>
           </div>
           <div class="stat-pill-card">
@@ -106,6 +107,19 @@ class NetworkingApp {
           </div>
         </div>
       </div>
+
+      <!-- AI Network Health & Live Risk Simulation Dashboard (Dribbble Style) -->
+      <section class="dribbble-section" id="section-simulation-dashboard">
+        <div class="section-header-modern">
+          <div>
+            <span class="section-tag">AI Telemetry & Risk Simulation</span>
+            <h3>Real-Time Network Health & Anomaly Predictor</h3>
+            <p>Live 10G link telemetry with radial health index, live latency waveforms, and interactive fault-injection:</p>
+          </div>
+        </div>
+
+        <div id="sim-dashboard-mount-point"></div>
+      </section>
 
       <!-- Interactive Network Blueprint Section -->
       <section class="dribbble-section" id="section-blueprint">
@@ -288,6 +302,11 @@ class NetworkingApp {
       </section>
     `;
 
+    // Mount AI Simulation Dashboard
+    if (window.NetworkSimulationDashboard) {
+      this.simDashboardInstance = new window.NetworkSimulationDashboard("sim-dashboard-mount-point");
+    }
+
     // Bind Home Page Events
     document.getElementById("btn-start-course")?.addEventListener("click", () => this.loadModule(0, true));
     document.getElementById("btn-browse-hardware")?.addEventListener("click", () => {
@@ -336,8 +355,8 @@ class NetworkingApp {
       <button class="nav-item ${this.currentView === 'home' ? 'nav-active' : ''}" id="nav-item-home">
         <span class="nav-icon">🏠</span>
         <div class="nav-text">
-          <span class="nav-short">Home & Hardware</span>
-          <small class="nav-tagline">Devices, Cables & Blueprint</small>
+          <span class="nav-short">Home & Simulation</span>
+          <small class="nav-tagline">AI Telemetry & Hardware</small>
         </div>
       </button>
       <div class="sidebar-divider"></div>
@@ -676,6 +695,9 @@ class NetworkingApp {
   }
 
   bindGlobalEvents() {
+    // Brand click to home
+    document.getElementById("brand-home-btn")?.addEventListener("click", () => this.showHomeView(true));
+
     // Hash routing
     window.addEventListener("hashchange", () => {
       const hash = window.location.hash.replace("#", "");
