@@ -1,4 +1,4 @@
-// Simulated Virtual Network Engine
+// Expanded Mock Network Simulator Engine
 class MockNetworkSimulator {
   constructor() {
     this.resetNetwork();
@@ -14,6 +14,7 @@ class MockNetworkSimulator {
       mac: "02:42:AC:11:00:02",
       gateway: "192.168.1.1",
       dns: "1.1.1.1",
+      vlan: 10,
       listeningPorts: [
         { proto: "tcp", localPort: 22, process: "sshd", state: "LISTEN" },
         { proto: "tcp", localPort: 3000, process: "node (dev-server)", state: "LISTEN" }
@@ -24,6 +25,13 @@ class MockNetworkSimulator {
     this.arpTable = [
       { ip: "192.168.1.1", mac: "02:42:AC:11:00:01", iface: "eth0", type: "dynamic" },
       { ip: "192.168.1.50", mac: "02:42:AC:11:00:50", iface: "eth0", type: "dynamic" }
+    ];
+
+    // Simulated VLAN Database
+    this.vlans = [
+      { id: 1, name: "default", ports: "Fa0/3-23" },
+      { id: 10, name: "ENGINEERING", ports: "Fa0/1 (PC1), Fa0/24 (Trunk)" },
+      { id: 20, name: "FINANCE", ports: "Fa0/2 (PC2), Fa0/24 (Trunk)" }
     ];
 
     // Simulated DNS Zone Database
@@ -39,11 +47,16 @@ class MockNetworkSimulator {
 
     // Network Nodes / Servers in topology
     this.nodes = {
+      "127.0.0.1": {
+        name: "localhost (loopback)",
+        rtt: "0.04 ms",
+        ports: { 22: { service: "sshd" }, 3000: { service: "http" } }
+      },
       "192.168.1.1": {
         name: "local-gateway",
         isRouter: true,
         rtt: "0.8 ms",
-        ports: {}
+        ports: { 53: { service: "dns" }, 80: { service: "http (admin-web)" } }
       },
       "192.168.1.50": {
         name: "internal-app-server",
@@ -53,7 +66,6 @@ class MockNetworkSimulator {
             service: "http",
             response: "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello from Internal App Server (Port 8080)!"
           }
-          // Note: Port 80 is closed by default to teach port troubleshooting in Challenge 1!
         }
       },
       "10.0.0.50": {
@@ -114,9 +126,6 @@ class MockNetworkSimulator {
         { hop: 4, ip: "10.0.8.2", name: "backup-node", rtt: "462.8 ms" }
       ]
     };
-
-    // Active Mission Tracking
-    this.currentChallenge = null;
   }
 
   resolveDNS(domain) {
@@ -124,7 +133,6 @@ class MockNetworkSimulator {
     if (this.dnsDatabase[clean]) {
       return this.dnsDatabase[clean].a;
     }
-    // If it's already an IP
     if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(clean)) {
       return clean;
     }

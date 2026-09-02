@@ -1,40 +1,270 @@
-// Main Application Coordinator & Hash Router
+// Main Application Coordinator, Live Clock, Home View & Sizable Layout Engine
 class App {
   constructor() {
+    this.currentView = "home"; // 'home' or 'module'
     this.currentModuleIndex = 0;
+    this.selectedDeviceId = "endpoint-pc";
     this.completedModules = JSON.parse(localStorage.getItem("net_completed_modules") || "[]");
     this.terminalInstance = null;
     this.init();
   }
 
   init() {
+    this.startLiveClock();
     this.renderNavigation();
-    this.handleInitialRoute();
     this.initTerminal();
+    this.initSizableLayout();
     this.bindGlobalEvents();
     this.applyTheme();
+    this.handleInitialRoute();
+  }
+
+  startLiveClock() {
+    const clockEl = document.getElementById("header-live-clock");
+    const update = () => {
+      const now = new Date();
+      const localStr = now.toLocaleTimeString();
+      const utcStr = now.toISOString().substring(11, 19) + " UTC";
+      if (clockEl) {
+        clockEl.innerHTML = `<span class="clock-icon">⏱️</span> <span class="clock-local">${localStr}</span> <span class="clock-utc">(${utcStr})</span>`;
+      }
+    };
+    update();
+    setInterval(update, 1000);
   }
 
   handleInitialRoute() {
     const hash = window.location.hash.replace("#", "");
-    if (hash) {
+    if (hash === "home" || !hash) {
+      this.showHomeView(false);
+    } else if (hash.startsWith("module-")) {
       const foundIdx = window.CURRICULUM.findIndex(m => m.id === hash);
       if (foundIdx !== -1) {
         this.loadModule(foundIdx, false);
-        return;
+      } else {
+        this.showHomeView(false);
       }
+    } else {
+      this.showHomeView(false);
     }
-    this.loadModule(0, false);
+  }
+
+  showHomeView(updateHash = true) {
+    this.currentView = "home";
+    if (updateHash) window.location.hash = "home";
+
+    // Update nav active buttons
+    document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("nav-active"));
+    const homeNavBtn = document.getElementById("nav-item-home");
+    if (homeNavBtn) homeNavBtn.classList.add("nav-active");
+
+    const contentArea = document.getElementById("module-content-area");
+    if (!contentArea) return;
+
+    const device = window.NETWORK_DEVICES.find(d => d.id === this.selectedDeviceId) || window.NETWORK_DEVICES[0];
+
+    contentArea.innerHTML = `
+      <!-- Hero Welcome Banner -->
+      <div class="home-hero-card">
+        <div class="hero-left">
+          <span class="hero-badge">⚡ Networking Academy — Level 0 to 1</span>
+          <h2>Computer Networking from Ground Zero to Engineering Mastery</h2>
+          <p class="hero-desc">
+            Understand every wire, chip, and protocol powering the modern Internet. Start with concrete physical hardware and devices before diving into binary packets, subnetting, VLANs, and TCP handshakes.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary" onclick="App.loadModule(0, true)">
+              Start Learning Journey (Module 0) ➔
+            </button>
+            <button class="btn-hero-secondary" onclick="document.getElementById('hardware-catalog-section').scrollIntoView({behavior: 'smooth'})">
+              Explore Network Hardware & Media 🗄️
+            </button>
+          </div>
+        </div>
+        <div class="hero-stats-badge">
+          <div class="stat-box"><strong>9</strong><span>Interactive Modules</span></div>
+          <div class="stat-box"><strong>7</strong><span>Visual Simulators</span></div>
+          <div class="stat-box"><strong>100%</strong><span>Zero Buzzwords</span></div>
+        </div>
+      </div>
+
+      <!-- Interactive Network Blueprint Architecture Diagram -->
+      <section class="home-section">
+        <div class="section-title-row">
+          <div>
+            <h3>🏢 Modern Enterprise & Home Network Blueprint</h3>
+            <p style="color:var(--text-muted); font-size:0.88rem;">Click any physical hardware component in the architectural blueprint or catalog below to inspect its specifications:</p>
+          </div>
+        </div>
+
+        <div class="network-blueprint-card">
+          <div class="blueprint-flow">
+            
+            <div class="bp-stage">
+              <span class="bp-stage-label">WAN / Internet Edge</span>
+              <div class="bp-node ${this.selectedDeviceId === 'modem' ? 'bp-active' : ''}" onclick="App.selectDevice('modem')">
+                <span class="bp-icon">📡</span>
+                <strong>Fiber ONT / Modem</strong>
+                <small>Optical ➔ Ethernet</small>
+              </div>
+            </div>
+
+            <div class="bp-arrow">➔</div>
+
+            <div class="bp-stage">
+              <span class="bp-stage-label">L3 Boundary</span>
+              <div class="bp-node ${this.selectedDeviceId === 'router' ? 'bp-active' : ''}" onclick="App.selectDevice('router')">
+                <span class="bp-icon">🌐</span>
+                <strong>Gateway Router</strong>
+                <small>NAT & Routing Table</small>
+              </div>
+            </div>
+
+            <div class="bp-arrow">➔</div>
+
+            <div class="bp-stage">
+              <span class="bp-stage-label">L2 Core Distribution</span>
+              <div class="bp-node ${this.selectedDeviceId === 'switch-l2' ? 'bp-active' : ''}" onclick="App.selectDevice('switch-l2')">
+                <span class="bp-icon">🔀</span>
+                <strong>PoE Switch (802.1Q)</strong>
+                <small>MAC Forwarding & VLANs</small>
+              </div>
+            </div>
+
+            <div class="bp-arrow">➔</div>
+
+            <div class="bp-stage">
+              <span class="bp-stage-label">Connected Endpoints</span>
+              <div class="bp-endpoints-stack">
+                <div class="bp-mini-node ${this.selectedDeviceId === 'endpoint-pc' ? 'bp-active' : ''}" onclick="App.selectDevice('endpoint-pc')">💻 Workstation</div>
+                <div class="bp-mini-node ${this.selectedDeviceId === 'server' ? 'bp-active' : ''}" onclick="App.selectDevice('server')">🗄️ Rack Server</div>
+                <div class="bp-mini-node ${this.selectedDeviceId === 'voip-phone' ? 'bp-active' : ''}" onclick="App.selectDevice('voip-phone')">📞 VoIP Phone (PoE)</div>
+                <div class="bp-mini-node ${this.selectedDeviceId === 'ip-camera' ? 'bp-active' : ''}" onclick="App.selectDevice('ip-camera')">📹 CCTV Camera (PoE)</div>
+                <div class="bp-mini-node ${this.selectedDeviceId === 'printer' ? 'bp-active' : ''}" onclick="App.selectDevice('printer')">🖨️ Network Printer</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Hardware & Media Catalog Dissector -->
+      <section class="home-section" id="hardware-catalog-section">
+        <div class="section-title-row">
+          <div>
+            <h3>📦 Physical Hardware & Cabling Media Catalog</h3>
+            <p style="color:var(--text-muted); font-size:0.88rem;">Select a device to view its internal anatomy, OSI layer, typical port numbers, and networking roles:</p>
+          </div>
+        </div>
+
+        <div class="devices-catalog-grid">
+          ${window.NETWORK_DEVICES.map(d => `
+            <div class="device-thumb-card ${d.id === this.selectedDeviceId ? 'dev-card-active' : ''}" onclick="App.selectDevice('${d.id}')">
+              <div class="thumb-icon">${d.icon}</div>
+              <strong>${d.name}</strong>
+              <small class="thumb-cat">${d.category}</small>
+              <span class="thumb-layer">${d.osiLayer.split(' ')[0]} ${d.osiLayer.split(' ')[1] || ''}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Selected Device Detail Viewer -->
+        <div class="device-detail-card" id="selected-device-detail-box">
+          <div class="detail-header">
+            <div class="detail-title-group">
+              <span class="detail-icon">${device.icon}</span>
+              <div>
+                <h4>${device.name}</h4>
+                <span class="detail-category">${device.category} &bull; <strong style="color:var(--accent-primary)">${device.osiLayer}</strong></span>
+              </div>
+            </div>
+            <button class="btn-vis btn-subtle" onclick="TerminalApp.runSampleCommand('ping 192.168.1.1')">
+              Test Connection in Terminal ↵
+            </button>
+          </div>
+
+          <p class="detail-tagline">${device.tagline}</p>
+
+          <div class="detail-grid">
+            <div class="detail-pane">
+              <strong>Core Engineering Role:</strong>
+              <p>${device.role}</p>
+
+              <strong style="margin-top:14px; display:block;">Physical & Kernel Anatomy:</strong>
+              <div class="anatomy-list">${device.anatomy}</div>
+            </div>
+
+            <div class="detail-pane">
+              <strong>Technical Specifications:</strong>
+              <table class="specs-table">
+                <tr><td><strong>Addressing:</strong></td><td>${device.specs.addressing}</td></tr>
+                <tr><td><strong>Physical Interfaces:</strong></td><td>${device.specs.interfaces}</td></tr>
+                <tr><td><strong>Typical Ports:</strong></td><td><code>${device.specs.typicalPorts}</code></td></tr>
+                <tr><td><strong>Protocols Used:</strong></td><td><code>${device.specs.protocols}</code></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Learning Journey Path Roadmap -->
+      <section class="home-section">
+        <div class="section-title-row">
+          <div>
+            <h3>🗺️ Learning Journey Roadmap</h3>
+            <p style="color:var(--text-muted); font-size:0.88rem;">The progressive path from physical hardware to advanced web protocols and diagnostic labs:</p>
+          </div>
+        </div>
+
+        <div class="journey-roadmap-grid">
+          ${window.CURRICULUM.map((mod, idx) => {
+            const isCompleted = this.completedModules.includes(mod.id);
+            return `
+              <div class="roadmap-card" onclick="App.loadModule(${idx}, true)">
+                <div class="road-num">Step ${idx}</div>
+                <div class="road-icon">${mod.icon}</div>
+                <strong>${mod.title}</strong>
+                <p>${mod.tagline}</p>
+                <div class="road-footer">
+                  <span class="road-action">Start Lesson ➔</span>
+                  ${isCompleted ? '<span class="road-done">✓ Completed</span>' : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </section>
+    `;
+
+    document.querySelector(".main-content").scrollTop = 0;
+  }
+
+  selectDevice(deviceId) {
+    this.selectedDeviceId = deviceId;
+    this.showHomeView(false);
+    const detailBox = document.getElementById("selected-device-detail-box");
+    if (detailBox) detailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   renderNavigation() {
     const navContainer = document.getElementById("nav-modules-list");
     if (!navContainer) return;
 
-    navContainer.innerHTML = window.CURRICULUM.map((mod, idx) => {
+    let html = `
+      <button class="nav-item ${this.currentView === 'home' ? 'nav-active' : ''}" id="nav-item-home" onclick="App.showHomeView(true)">
+        <span class="nav-icon">🏠</span>
+        <div class="nav-text">
+          <span class="nav-short">Home & Hardware Catalog</span>
+          <small class="nav-tagline">Devices, Cables & Blueprint</small>
+        </div>
+      </button>
+      <div class="sidebar-divider"></div>
+    `;
+
+    html += window.CURRICULUM.map((mod, idx) => {
       const isCompleted = this.completedModules.includes(mod.id);
       return `
-        <button class="nav-item ${idx === this.currentModuleIndex ? 'nav-active' : ''}" data-index="${idx}" data-id="${mod.id}">
+        <button class="nav-item ${this.currentView === 'module' && idx === this.currentModuleIndex ? 'nav-active' : ''}" data-index="${idx}" data-id="${mod.id}" onclick="App.loadModule(${idx}, true)">
           <span class="nav-icon">${mod.icon}</span>
           <div class="nav-text">
             <span class="nav-short">${mod.shortTitle}</span>
@@ -45,19 +275,13 @@ class App {
       `;
     }).join('');
 
-    // Bind click events
-    navContainer.querySelectorAll(".nav-item").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const idx = parseInt(btn.dataset.index, 10);
-        this.loadModule(idx, true);
-      });
-    });
-
+    navContainer.innerHTML = html;
     this.updateProgressBadge();
   }
 
   loadModule(index, updateHash = true) {
     if (index < 0 || index >= window.CURRICULUM.length) return;
+    this.currentView = "module";
     this.currentModuleIndex = index;
     const mod = window.CURRICULUM[index];
 
@@ -65,12 +289,7 @@ class App {
       window.location.hash = mod.id;
     }
 
-    // Update nav active classes
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach((btn, idx) => {
-      if (idx === index) btn.classList.add("nav-active");
-      else btn.classList.remove("nav-active");
-    });
+    this.renderNavigation();
 
     // Render Module Content
     const contentArea = document.getElementById("module-content-area");
@@ -145,7 +364,7 @@ class App {
       <div class="module-header-hero">
         <div class="hero-badge">
           <span class="hero-icon">${mod.icon}</span>
-          <span>Module ${index + 1} of ${window.CURRICULUM.length}</span>
+          <span>Module ${index} of ${window.CURRICULUM.length - 1}</span>
         </div>
         <h2>${mod.title}</h2>
         <p class="hero-tagline">${mod.tagline}</p>
@@ -241,6 +460,73 @@ class App {
     }
   }
 
+  initSizableLayout() {
+    const sidebar = document.getElementById("app-sidebar");
+    const terminal = document.getElementById("terminal-panel");
+    const resizerLeft = document.getElementById("resizer-left");
+    const resizerRight = document.getElementById("resizer-right");
+
+    // Load saved widths
+    const savedSidebarWidth = localStorage.getItem("net_sidebar_width");
+    const savedTerminalWidth = localStorage.getItem("net_terminal_width");
+
+    if (savedSidebarWidth && sidebar) sidebar.style.width = `${savedSidebarWidth}px`;
+    if (savedTerminalWidth && terminal) terminal.style.width = `${savedTerminalWidth}px`;
+
+    // Left Resizer Drag (Sidebar)
+    if (resizerLeft && sidebar) {
+      let isDraggingLeft = false;
+
+      resizerLeft.addEventListener("mousedown", () => {
+        isDraggingLeft = true;
+        document.body.classList.add("resizing-horizontal");
+        resizerLeft.classList.add("resizer-active");
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDraggingLeft) return;
+        const newWidth = Math.min(Math.max(e.clientX, 180), 450);
+        sidebar.style.width = `${newWidth}px`;
+        localStorage.setItem("net_sidebar_width", newWidth);
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (isDraggingLeft) {
+          isDraggingLeft = false;
+          document.body.classList.remove("resizing-horizontal");
+          resizerLeft.classList.remove("resizer-active");
+        }
+      });
+    }
+
+    // Right Resizer Drag (Terminal Panel)
+    if (resizerRight && terminal) {
+      let isDraggingRight = false;
+
+      resizerRight.addEventListener("mousedown", () => {
+        isDraggingRight = true;
+        document.body.classList.add("resizing-horizontal");
+        resizerRight.classList.add("resizer-active");
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDraggingRight) return;
+        const windowWidth = window.innerWidth;
+        const newWidth = Math.min(Math.max(windowWidth - e.clientX, 280), 800);
+        terminal.style.width = `${newWidth}px`;
+        localStorage.setItem("net_terminal_width", newWidth);
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (isDraggingRight) {
+          isDraggingRight = false;
+          document.body.classList.remove("resizing-horizontal");
+          resizerRight.classList.remove("resizer-active");
+        }
+      });
+    }
+  }
+
   toggleModuleCompleted(modId) {
     if (this.completedModules.includes(modId)) {
       this.completedModules = this.completedModules.filter(id => id !== modId);
@@ -272,12 +558,14 @@ class App {
   }
 
   bindGlobalEvents() {
-    // Hash change browser back/forward routing
+    // Hash change routing
     window.addEventListener("hashchange", () => {
       const hash = window.location.hash.replace("#", "");
-      if (hash) {
+      if (hash === "home" || !hash) {
+        if (this.currentView !== "home") this.showHomeView(false);
+      } else if (hash.startsWith("module-")) {
         const foundIdx = window.CURRICULUM.findIndex(m => m.id === hash);
-        if (foundIdx !== -1 && foundIdx !== this.currentModuleIndex) {
+        if (foundIdx !== -1 && (foundIdx !== this.currentModuleIndex || this.currentView !== "module")) {
           this.loadModule(foundIdx, false);
         }
       }
@@ -286,9 +574,12 @@ class App {
     // Terminal side-by-side toggle
     const toggleBtn = document.getElementById("btn-toggle-terminal");
     const terminalPanel = document.getElementById("terminal-panel");
+    const resizerRight = document.getElementById("resizer-right");
+
     if (toggleBtn && terminalPanel) {
       toggleBtn.addEventListener("click", () => {
         terminalPanel.classList.toggle("panel-collapsed");
+        if (resizerRight) resizerRight.classList.toggle("resizer-hidden");
         toggleBtn.textContent = terminalPanel.classList.contains("panel-collapsed") ? "Open Terminal 💻" : "Hide Terminal ➔";
       });
     }

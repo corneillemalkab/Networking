@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Networking Academy — Level 0 to Advanced Fundamentals</title>
-  <meta name="description" content="A warm, visual, and zero-buzzword interactive networking academy for new engineers with real packet animations and in-browser terminal practice." />
+  <title>Networking Academy — Professional Systems & Interactive Network Sandbox</title>
+  <meta name="description" content="A professional, visual, and zero-buzzword interactive networking academy for new engineers with hardware anatomy, real packet animations, and in-browser terminal practice." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body data-theme="dark">
@@ -12,11 +12,16 @@
   <!-- Top Application Bar -->
   <header class="app-header">
     <div class="brand">
-      <span class="brand-icon">⚡</span>
-      <div class="brand-text">
+      <span class="brand-icon" onclick="App.showHomeView(true)" style="cursor:pointer;" title="Return to Home">⚡</span>
+      <div class="brand-text" onclick="App.showHomeView(true)" style="cursor:pointer;">
         <h1>Networking Academy <span style="font-weight: normal; opacity: 0.7;">| Level 0 to 1</span></h1>
-        <span class="brand-sub">Visual Systems Engineering & Interactive Network Sandbox</span>
+        <span class="brand-sub">Visual Hardware Engineering & Interactive Protocol Sandbox</span>
       </div>
+    </div>
+
+    <!-- Live System Clock -->
+    <div class="header-clock-container" id="header-live-clock">
+      <span class="clock-icon">⏱️</span> 00:00:00
     </div>
 
     <div class="header-right">
@@ -35,25 +40,31 @@
     </div>
   </header>
 
-  <!-- Main 3-Column Side-by-Side Workspace -->
-  <div class="app-layout">
+  <!-- Main 3-Column Sizable Side-by-Side Workspace -->
+  <div class="app-layout" id="main-app-layout">
     
-    <!-- Left: Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="sidebar-heading">Curriculum Modules</div>
+    <!-- 1. Left: Sizable Sidebar Navigation -->
+    <aside class="sidebar" id="app-sidebar">
+      <div class="sidebar-heading">Navigation & Curriculum</div>
       <nav class="nav-modules" id="nav-modules-list">
-        <!-- Dynamically rendered modules -->
+        <!-- Dynamically rendered Home + Modules -->
       </nav>
     </aside>
 
-    <!-- Center Stage: Reading, Explanations & Wide Visualizers -->
-    <main class="content-area-wrapper">
+    <!-- Draggable Left Splitter Gutter -->
+    <div class="resizer-gutter resizer-left" id="resizer-left" title="Drag to resize sidebar"></div>
+
+    <!-- 2. Center Stage: Reading, Explanations, Home Catalog & Wide Visualizers -->
+    <main class="content-area-wrapper" id="app-content-wrapper">
       <div class="main-content" id="module-content-area">
-        <!-- Dynamically populated module sections & wide visualizers -->
+        <!-- Dynamically populated Home or Module sections -->
       </div>
     </main>
 
-    <!-- Right Side: Side-by-Side Interactive Terminal Panel -->
+    <!-- Draggable Right Splitter Gutter -->
+    <div class="resizer-gutter resizer-right" id="resizer-right" title="Drag to resize terminal panel"></div>
+
+    <!-- 3. Right Side: Sizable Interactive Terminal Panel -->
     <aside class="terminal-panel" id="terminal-panel">
       <div id="terminal-mount" style="height: 100%;"></div>
     </aside>
@@ -61,6 +72,7 @@
   </div>
 
   <!-- Application Scripts -->
+  <script src="js/data/devices.js"></script>
   <script src="js/data/curriculum.js"></script>
   <script src="js/visualizers/packetJourney.js"></script>
   <script src="js/visualizers/layerStack.js"></script>

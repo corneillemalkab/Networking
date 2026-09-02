@@ -10,7 +10,8 @@ class TerminalApp {
 
     this.availableCommands = [
       "ping", "traceroute", "curl", "nslookup", "dig",
-      "ip", "ifconfig", "arp", "netstat", "ss",
+      "ip", "ifconfig", "arp", "netstat", "ss", "vlan",
+      "nmap", "tcpdump", "dhcp", "dhclient",
       "challenge", "hint", "check", "clear", "help", "cat"
     ];
 
@@ -59,7 +60,6 @@ class TerminalApp {
   bindEvents() {
     this.inputEl.addEventListener("keydown", (e) => this.handleKeyDown(e));
 
-    // Clicking anywhere in the terminal focuses the input
     this.container.querySelector(".terminal-window").addEventListener("click", () => {
       this.inputEl.focus();
     });
@@ -155,10 +155,10 @@ class TerminalApp {
  | |\\  |  __/ |_ \\ V  V / (_) | |  |   < | | | | | (_| |  
  |_| \\_|\\___|\\__| \\_/\\_/ \\___/|_|  |_|\\_\\|_|_| |_|\\__, |  
                                                    |___/   
-  Level 1: Interactive Network Engineering Sandbox
+  Level 0 to 1: Interactive Network Engineering Sandbox
         </pre>
-        <p>Type <code class="term-highlight">help</code> to list available tools, or <code class="term-highlight">challenge 1</code> to start a guided diagnostic mission.</p>
-        <p class="term-dim">Sample commands: <code>ping 192.168.1.50</code> | <code>ip a</code> | <code>nslookup api.github.com</code> | <code>curl http://mysite.internal</code></p>
+        <p>Type <code class="term-highlight">help</code> to list tools, or <code class="term-highlight">challenge 1</code> to start a mission.</p>
+        <p class="term-dim">Sample commands: <code>ping 127.0.0.1</code> | <code>ip a</code> | <code>vlan</code> | <code>nmap 192.168.1.50</code> | <code>curl http://10.0.0.50</code></p>
       </div>
     `);
   }
@@ -203,6 +203,19 @@ class TerminalApp {
       case "ss":
         this.cmdNetstat(args);
         break;
+      case "vlan":
+        this.cmdVlan(args);
+        break;
+      case "nmap":
+        this.cmdNmap(args);
+        break;
+      case "tcpdump":
+        this.cmdTcpdump(args);
+        break;
+      case "dhcp":
+      case "dhclient":
+        this.cmdDHCP(args);
+        break;
       case "challenge":
       case "mission":
         this.cmdChallenge(args);
@@ -225,22 +238,24 @@ class TerminalApp {
     this.writeOutput(`
       <div class="term-help-grid">
         <div><strong>Diagnostic Tools:</strong></div>
-        <div><code>ping &lt;host&gt;</code> — Send ICMP echo requests to measure RTT & packet loss</div>
-        <div><code>traceroute &lt;host&gt;</code> — Trace intermediate router hops to target</div>
+        <div><code>ping &lt;host&gt;</code> — Send ICMP echo requests to measure latency & loss</div>
+        <div><code>traceroute &lt;host&gt;</code> — Trace intermediate router hops</div>
         <div><code>curl [-i|-v] &lt;url&gt;</code> — Send HTTP/HTTPS requests & inspect headers</div>
-        <div><code>nslookup &lt;domain&gt;</code> — Query DNS lookup table for A-records</div>
-        <div><code>dig &lt;domain&gt;</code> — Detailed DNS query inspector</div>
+        <div><code>nslookup &lt;domain&gt;</code> / <code>dig</code> — Query DNS records</div>
+        <div><code>nmap &lt;ip&gt;</code> — Port scanner to inspect open listening services</div>
+        <div><code>tcpdump</code> — Sniff real-time packet headers on interface</div>
 
-        <div style="margin-top:8px;"><strong>Local Machine Configuration:</strong></div>
-        <div><code>ip a</code> / <code>ifconfig</code> — Display network interface IP, MAC & subnet mask</div>
-        <div><code>arp -a</code> — View local Address Resolution Protocol table</div>
-        <div><code>netstat -tlpn</code> — List active listening TCP ports and sockets</div>
+        <div style="margin-top:8px;"><strong>Configuration & L2/L3 Inspection:</strong></div>
+        <div><code>ip a</code> / <code>ifconfig</code> — Display IP, MAC & subnet masks</div>
+        <div><code>ip route</code> — Display kernel routing table</div>
+        <div><code>arp -a</code> — View Address Resolution Protocol table</div>
+        <div><code>vlan</code> — Display active VLAN database and port mappings</div>
+        <div><code>netstat -tlpn</code> / <code>ss</code> — View active listening TCP sockets</div>
+        <div><code>dhclient</code> — Simulate DHCP DORA IP lease acquisition</div>
 
-        <div style="margin-top:8px;"><strong>Hands-On Missions:</strong></div>
-        <div><code>challenge [1-3]</code> — Start a guided diagnostic challenge</div>
-        <div><code>hint</code> — Get a hint for your active mission</div>
-        <div><code>check</code> — Verify your solution</div>
-        <div><code>clear</code> — Clear terminal screen</div>
+        <div style="margin-top:8px;"><strong>Missions:</strong></div>
+        <div><code>challenge [1-3]</code> — Start a guided diagnostic mission</div>
+        <div><code>hint</code> / <code>check</code> — Hints and validator</div>
       </div>
     `);
   }
@@ -259,22 +274,19 @@ class TerminalApp {
       return;
     }
 
-    // Is host alive?
     const node = this.network.nodes[ip];
-
     let output = `PING ${target} (${ip}) 56(84) bytes of data.<br>`;
     if (node) {
       const rttNum = parseFloat(node.rtt);
       for (let seq = 1; seq <= 4; seq++) {
         const jitter = (Math.random() * 0.4 - 0.2).toFixed(2);
-        const seqRtt = (rttNum + parseFloat(jitter)).toFixed(1);
+        const seqRtt = (rttNum + parseFloat(jitter)).toFixed(2);
         output += `64 bytes from ${ip}: icmp_seq=${seq} ttl=64 time=${seqRtt} ms<br>`;
       }
       output += `<br>--- ${target} ping statistics ---<br>`;
       output += `4 packets transmitted, 4 received, 0% packet loss, time 3004ms<br>`;
-      output += `rtt min/avg/max/mdev = ${(rttNum - 0.2).toFixed(1)}/${rttNum.toFixed(1)}/${(rttNum + 0.3).toFixed(1)}/0.210 ms`;
+      output += `rtt min/avg/max = ${(rttNum - 0.2).toFixed(2)}/${rttNum.toFixed(2)}/${(rttNum + 0.3).toFixed(2)} ms`;
     } else {
-      // Unreachable
       for (let seq = 1; seq <= 4; seq++) {
         output += `From ${this.network.client.gateway} icmp_seq=${seq} Destination Host Unreachable<br>`;
       }
@@ -330,7 +342,6 @@ class TerminalApp {
       }
       this.writeOutput(out);
     } else {
-      // dig
       let out = `; &lt;&lt;&gt;&gt; DiG 9.18.18 &lt;&lt;&gt;&gt; ${domain}<br>`;
       out += `;; Got answer:<br>`;
       out += `;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: ${rec ? 'NOERROR' : 'NXDOMAIN'}, id: 34190<br>`;
@@ -365,7 +376,6 @@ class TerminalApp {
       return;
     }
 
-    // Parse URL
     let url = targetUrl;
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       url = "http://" + url;
@@ -410,7 +420,6 @@ class TerminalApp {
       } else if (isHeaderOnly) {
         out += service.response.replace(/\r\n/g, '<br>');
       } else {
-        // Just payload
         const parts = service.response.split("\r\n\r\n");
         out += (parts[1] || service.response).replace(/\r\n/g, '<br>');
       }
@@ -430,7 +439,7 @@ class TerminalApp {
       out += `    inet 127.0.0.1/8 scope host lo<br>`;
       out += `2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP<br>`;
       out += `    link/ether ${c.mac} brd ff:ff:ff:ff:ff:ff<br>`;
-      out += `    inet <strong class="term-highlight">${c.ip}/${c.cidr}</strong> brd 192.168.1.255 scope global eth0<br>`;
+      out += `    inet <strong class="term-highlight">${c.ip}/${c.cidr}</strong> brd 192.168.1.255 scope global eth0 (VLAN ${c.vlan})<br>`;
       out += `    valid_lft forever preferred_lft forever`;
       this.writeOutput(out);
     } else if (args[0] === "route" || args[0] === "r") {
@@ -447,8 +456,8 @@ class TerminalApp {
     let out = `eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500<br>`;
     out += `        inet ${c.ip}  netmask ${c.netmask}  broadcast 192.168.1.255<br>`;
     out += `        ether ${c.mac}  txqueuelen 1000  (Ethernet)<br>`;
-    out += `        RX packets 1842  bytes 1420582 (1.4 MB)<br>`;
-    out += `        TX packets 1205  bytes 105492 (105.4 KB)<br><br>`;
+    out += `        RX packets 2410  bytes 1850124 (1.8 MB)<br>`;
+    out += `        TX packets 1582  bytes 142890 (142.8 KB)<br><br>`;
     out += `lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536<br>`;
     out += `        inet 127.0.0.1  netmask 255.0.0.0<br>`;
     out += `        loop  txqueuelen 1000  (Local Loopback)`;
@@ -469,6 +478,59 @@ class TerminalApp {
     this.network.client.listeningPorts.forEach(p => {
       out += `${p.proto.padEnd(5)} 0      0      0.0.0.0:${p.localPort.toString().padEnd(14)} 0.0.0.0:*               ${p.state.padEnd(11)} 1248/${p.process}<br>`;
     });
+    this.writeOutput(out);
+  }
+
+  cmdVlan(args) {
+    let out = `VLAN Name                             Status    Ports<br>`;
+    out += `---- -------------------------------- --------- -------------------------------<br>`;
+    this.network.vlans.forEach(v => {
+      out += `${v.id.toString().padEnd(4)} ${v.name.padEnd(32)} active    ${v.ports}<br>`;
+    });
+    this.writeOutput(out);
+  }
+
+  cmdNmap(args) {
+    if (args.length === 0) {
+      this.writeOutput(`Usage: nmap &lt;target_ip&gt;`);
+      return;
+    }
+    const target = args[0];
+    const ip = this.network.resolveDNS(target);
+    const node = this.network.nodes[ip];
+
+    let out = `Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toUTCString()}<br>`;
+    out += `Nmap scan report for ${target} (${ip})<br>`;
+    if (node) {
+      out += `Host is up (${node.rtt} latency).<br>`;
+      out += `PORT     STATE SERVICE<br>`;
+      Object.keys(node.ports).forEach(port => {
+        out += `${port.padEnd(8)}/tcp open  ${node.ports[port].service}<br>`;
+      });
+    } else {
+      out += `Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn<br>`;
+      out += `Nmap done: 1 IP address (0 hosts up) scanned in 2.04 seconds`;
+    }
+    this.writeOutput(out);
+  }
+
+  cmdTcpdump(args) {
+    let out = `tcpdump: verbose output suppressed, use -v[v]... for full protocol decode<br>`;
+    out += `listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes<br>`;
+    out += `13:30:01.104218 IP 192.168.1.10.54218 &gt; 1.1.1.1.53: 34190+ A? api.github.com. (32)<br>`;
+    out += `13:30:01.118492 IP 1.1.1.1.53 &gt; 192.168.1.10.54218: 34190 1/0/0 A 140.82.121.6 (48)<br>`;
+    out += `13:30:01.120512 IP 192.168.1.10.49152 &gt; 10.0.0.50.80: Flags [S], seq 1000, win 65535<br>`;
+    out += `13:30:01.145012 IP 10.0.0.50.80 &gt; 192.168.1.10.49152: Flags [S.], seq 5000, ack 1001<br>`;
+    out += `4 packets captured, 4 packets received by filter, 0 packets dropped by kernel`;
+    this.writeOutput(out);
+  }
+
+  cmdDHCP(args) {
+    let out = `DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3<br>`;
+    out += `DHCPOFFER of 192.168.1.10 from 192.168.1.1 (Gateway Router)<br>`;
+    out += `DHCPREQUEST for 192.168.1.10 on eth0 to 255.255.255.255 port 67<br>`;
+    out += `DHCPACK of 192.168.1.10 from 192.168.1.1<br>`;
+    out += `bound to 192.168.1.10 -- renewal in 43200 seconds. (DHCP Lease active)`;
     this.writeOutput(out);
   }
 
@@ -513,7 +575,7 @@ class TerminalApp {
         <div class="mission-header">🎯 Active Mission: ${challenge.title} (${challenge.difficulty})</div>
         <p>${challenge.summary}</p>
         <div class="mission-steps">${challenge.instructions}</div>
-        <p class="term-dim">Tip: Type <code>hint</code> if you get stuck, and <code>check</code> when you are ready.</p>
+        <p class="term-dim">Tip: Type <code>hint</code> if you get stuck, and <code>check</code> when ready.</p>
       </div>
     `);
   }
@@ -540,7 +602,6 @@ class TerminalApp {
     const result = this.activeMission.validate(this.executedCommands, args ? args.join(' ') : "");
     if (result.passed) {
       this.writeOutput(`<div class="term-success-box">${result.message}</div>`);
-      // Trigger celebrate event
       if (window.App) window.App.markChallengeComplete(this.activeMission.id);
     } else {
       this.writeOutput(`<div class="term-warn-box">${result.message}</div>`);

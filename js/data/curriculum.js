@@ -1,50 +1,72 @@
-// Comprehensive Curriculum Data: From Level 0 Ground Zero to Advanced Fundamentals
+// Comprehensive Engineering Curriculum: Level 0 Ground Zero to Advanced Fundamentals
 window.CURRICULUM = [
   {
     id: "module-0",
-    title: "0. Ground Zero: What is a Computer Network?",
-    shortTitle: "Level 0: Foundations",
+    title: "0. Ground Zero: Signals, Hardware & Sockets",
+    shortTitle: "0. Signals & Hardware",
     icon: "🌱",
-    tagline: "How computers represent, transmit, and receive digital signals across physical media.",
+    tagline: "How physical signals become binary bytes, and how kernel sockets connect software programs.",
     sections: [
       {
-        heading: "What is a Signal? From Electricity to Binary",
+        heading: "From Physical Physics to Binary Memory",
         content: `
-          <p>Every digital computer operates using <strong>binary numbers</strong>: <code>0</code> and <code>1</code>. Inside a computer, these are stored as voltage levels in transistors on a silicon microchip.</p>
-          <p>A <strong>computer network</strong> is simply a mechanism to transmit those voltage states from one machine to another across a distance:</p>
+          <p>Every digital computer stores information as binary bits (<code>0</code> and <code>1</code>) in RAM transistors. A computer network is simply the physical technology used to move those exact bits between two separate computers:</p>
           
           <div class="tech-comparison-grid">
             <div class="tech-card">
-              <h4>1. Copper Cables (Ethernet Cat5e/Cat6)</h4>
-              <p>Transmits data as <strong>rapid electrical voltage fluctuations</strong> (+2V and -2V). Highly reliable over short distances (up to 100 meters).</p>
+              <h4>1. Copper Twisted Pair (Ethernet Cat6)</h4>
+              <p>Encodes bits as <strong>rapid voltage transitions</strong> (+2V / -2V) across 8 twisted copper wires. Subject to electrical resistance and interference (attenuation), limiting runs to 100 meters.</p>
             </div>
             <div class="tech-card">
               <h4>2. Fiber-Optic Cables</h4>
-              <p>Transmits data as <strong>flashes of light (photons)</strong> through ultra-pure glass strands. Capable of gigabits/terabits across thousands of miles with near-zero signal degradation.</p>
+              <p>Encodes bits as <strong>laser light flashes (photons)</strong> through glass cores. Capable of 100+ Gigabits per second across thousands of kilometers with zero electromagnetic interference.</p>
             </div>
           </div>
         `,
         callout: {
           type: "tip",
-          title: "Ground Rule: No Magic",
-          text: "There is no magic in networking. A network is just a physical medium carrying electromagnetic pulses, interpreted by a network chip as binary 1s and 0s, and reassembled by your operating system kernel into memory buffers."
+          title: "Technical Building Block",
+          text: "At the physical wire level, concepts like 'web pages', 'JSON', or 'images' do not exist—only physical symbol transitions (baud rate) timed by a hardware crystal clock."
         }
       },
       {
-        heading: "Key Concepts: Sockets, Localhost & Network Interfaces",
+        heading: "Bandwidth, Throughput, Latency & Jitter",
         content: `
-          <p>Before exploring multi-computer networks, let's understand how a single computer talks to itself:</p>
+          <p>Four foundational metrics define every network connection:</p>
           <ul>
-            <li><strong>Network Interface Card (NIC):</strong> The physical hardware chip (Ethernet port or Wi-Fi radio) responsible for converting RAM data into wire signals.</li>
-            <li><strong>Loopback Interface (<code>lo</code> / <code>127.0.0.1</code> / <code>localhost</code>):</strong> A virtual software interface inside the operating system. When a program sends data to <code>127.0.0.1</code>, the kernel routes the data directly back to local memory without ever touching a physical wire!</li>
-            <li><strong>Client Process vs Server Process:</strong> A <em>Client</em> is a program that initiates a network request (e.g., your web browser). A <em>Server</em> is a program that opens a listening socket and waits for incoming requests (e.g., Nginx, Node.js, PostgreSQL).</li>
+            <li><strong>Bandwidth:</strong> The maximum theoretical capacity of the physical link (e.g., 1 Gigabit per second = 1,000,000,000 bits/sec).</li>
+            <li><strong>Throughput:</strong> The actual rate of successfully delivered application data payload after subtracting header overhead and retransmissions.</li>
+            <li><strong>Latency (RTT):</strong> Round-Trip Time—the time in milliseconds for a packet to travel from sender to destination and back.</li>
+            <li><strong>Jitter:</strong> The variance in packet arrival delay (critical for real-time video, audio, and VoIP).</li>
           </ul>
         `
       },
       {
-        heading: "Hands-On Lab: Ping Your Own Computer (Loopback)",
+        heading: "Half-Duplex vs Full-Duplex & Collision Domains",
         content: `
-          <p>Run a ping to your computer's local loopback virtual interface to verify your local network stack is functioning:</p>
+          <div class="tech-comparison-grid">
+            <div class="tech-card">
+              <h4>Half-Duplex (Legacy Hubs & Wi-Fi)</h4>
+              <p>Devices can transmit OR receive, but <strong>never both at the same time</strong>. If two devices transmit simultaneously, their electrical signals collide on the shared wire (Collision Domain), requiring CSMA/CD backoff algorithms.</p>
+            </div>
+            <div class="tech-card">
+              <h4>Full-Duplex (Modern Switches)</h4>
+              <p>Uses separate dedicated wire pairs for transmitting (TX) and receiving (RX). Devices send and receive simultaneously at full speed with <strong>zero collisions</strong>.</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        heading: "Kernel Sockets & The Loopback Interface (127.0.0.1)",
+        content: `
+          <p>How does a program in software talk to the network? Through an operating system <strong>Socket</strong>—a file-descriptor-like handle representing an open communication channel.</p>
+          <p>The <strong>Loopback Interface (<code>lo</code> / <code>127.0.0.1</code>)</strong> is a virtual software interface. When a program sends packets to <code>127.0.0.1</code>, the OS kernel redirects the byte buffers directly in RAM memory without ever sending electrical signals to the physical network card.</p>
+        `
+      },
+      {
+        heading: "Hands-On Lab: Test Your Local Loopback Stack",
+        content: `
+          <p>Verify that your simulated kernel network stack is active:</p>
           <div class="code-preview">
             <code>ping 127.0.0.1</code>
             <button class="btn-copy" onclick="TerminalApp.runSampleCommand('ping 127.0.0.1')">Run in Terminal ↵</button>
@@ -53,13 +75,13 @@ window.CURRICULUM = [
         terminalPrompt: "ping 127.0.0.1"
       },
       {
-        heading: "Knowledge Check: Level 0",
+        heading: "Knowledge Check: Ground Zero",
         quiz: {
-          question: "What happens when a software process on your computer sends data to IP address 127.0.0.1?",
+          question: "Why do modern full-duplex Ethernet switches eliminate packet collisions completely?",
           options: [
-            { text: "The OS kernel intercepts the packet in memory and routes it directly back to the local destination socket without transmitting onto physical wires.", correct: true, feedback: "✅ Correct! 127.0.0.1 is the loopback interface, processed entirely inside kernel RAM." },
-            { text: "The packet is broadcasted to your Wi-Fi router and reflected back.", correct: false, feedback: "❌ Incorrect. Loopback packets never touch the physical Wi-Fi or Ethernet card." },
-            { text: "The operating system drops the packet as invalid.", correct: false, feedback: "❌ Incorrect. 127.0.0.1 is a fundamental standard defined in RFC 1122." }
+            { text: "Because they use separate dedicated physical wire pairs/channels for transmitting (TX) and receiving (RX) for each connected device.", correct: true, feedback: "✅ Correct! Full-duplex provides dedicated TX and RX paths, so outbound and inbound data never collide on the wire." },
+            { text: "Because switches compress all data into a single byte.", correct: false, feedback: "❌ Incorrect. Switches buffer and forward frames based on MAC addresses, not single-byte compression." },
+            { text: "Because collision domains can only exist over satellite links.", correct: false, feedback: "❌ Incorrect. Collision domains existed on legacy shared-bus coaxial cables and hubs." }
           ]
         }
       }
@@ -67,61 +89,60 @@ window.CURRICULUM = [
   },
   {
     id: "module-1",
-    title: "1. The OSI 7-Layer vs TCP/IP Model",
-    shortTitle: "OSI & TCP/IP Models",
+    title: "1. The OSI 7-Layer vs TCP/IP Model & Encapsulation",
+    shortTitle: "1. OSI vs TCP/IP Model",
     icon: "🥞",
-    tagline: "Why networks use layered abstraction, exact data units, and header encapsulation.",
+    tagline: "Why layered abstraction exists, Protocol Data Units (PDUs), and packet encapsulation mechanics.",
     sections: [
       {
-        heading: "Why Do Layered Models Exist?",
+        heading: "The Purpose of Layered Architecture",
         content: `
-          <p>Writing network software would be impossible if every web developer had to write code for copper cable voltage modulation or Wi-Fi radio frequencies. To solve this, networking is split into independent <strong>layers of abstraction</strong>.</p>
-          <p>Each layer has only <strong>one job</strong> and provides a clean interface to the layer above it.</p>
+          <p>Writing network applications would be unmanageable if every software engineer had to write low-level code for copper voltages or fiber timing. Network engineering uses <strong>layered abstraction</strong>: each layer provides a standardized service to the layer above it and hides the messy hardware details below.</p>
           
           <div class="tech-comparison-grid">
             <div class="tech-card">
-              <h4>The Theoretical OSI 7-Layer Model</h4>
-              <p>Created by the International Organization for Standardization (ISO) as an architectural reference standard:</p>
-              <ol style="margin-left: 20px; font-size: 0.85rem;">
-                <li>7. Application (User interaction)</li>
-                <li>6. Presentation (Data formatting/encryption)</li>
-                <li>5. Session (Connection dialogue)</li>
-                <li>4. Transport (End-to-end reliability)</li>
-                <li>3. Network (Global logical routing)</li>
-                <li>2. Data Link (Adjacent link framing)</li>
-                <li>1. Physical (Raw bits on wire)</li>
-              </ol>
+              <h4>OSI 7-Layer Model (Conceptual Standard)</h4>
+              <p>Designed by ISO in 1984 as a complete theoretical taxonomy:</p>
+              <ul style="font-size:0.82rem; margin-left:18px;">
+                <li><strong>7. Application:</strong> User-facing protocols (HTTP, SSH)</li>
+                <li><strong>6. Presentation:</strong> Data serialization, encryption, ASCII/UTF-8</li>
+                <li><strong>5. Session:</strong> Manages dialogues and tokens between apps</li>
+                <li><strong>4. Transport:</strong> End-to-end byte streams and ports (TCP, UDP)</li>
+                <li><strong>3. Network:</strong> Global logical routing (IPv4, IPv6)</li>
+                <li><strong>2. Data Link:</strong> Adjacent hop framing and MACs (Ethernet)</li>
+                <li><strong>1. Physical:</strong> Voltages, optical pulses, radio RF</li>
+              </ul>
             </div>
             <div class="tech-card">
-              <h4>The Real-World TCP/IP 4/5-Layer Model</h4>
-              <p>The pragmatic architecture used by the actual Internet and all operating system kernels:</p>
-              <ol style="margin-left: 20px; font-size: 0.85rem;">
-                <li>Application (L7: HTTP, DNS, SSH)</li>
-                <li>Transport (L4: TCP, UDP)</li>
-                <li>Internet / Network (L3: IPv4, IPv6, ICMP)</li>
-                <li>Data Link (L2: Ethernet, Wi-Fi frames)</li>
-                <li>Physical (L1: Signals, fiber, radio)</li>
-              </ol>
+              <h4>TCP/IP 4/5-Layer Model (Real-World Internet)</h4>
+              <p>The actual practical model implemented in Linux, Windows, macOS, and routers:</p>
+              <ul style="font-size:0.82rem; margin-left:18px;">
+                <li><strong>Application Layer:</strong> (Combines OSI L5, L6, L7) — HTTP, DNS, TLS</li>
+                <li><strong>Transport Layer (L4):</strong> TCP, UDP, QUIC</li>
+                <li><strong>Internet Layer (L3):</strong> IPv4, IPv6, ICMP, ARP</li>
+                <li><strong>Data Link Layer (L2):</strong> Ethernet II, Wi-Fi 802.11</li>
+                <li><strong>Physical Layer (L1):</strong> Cat6 copper, Single-mode fiber</li>
+              </ul>
             </div>
           </div>
         `
       },
       {
-        heading: "Protocol Data Units (PDU): The Exact Technical Names",
+        heading: "Protocol Data Units (PDUs) — The Exact Technical Terminology",
         content: `
-          <p>In software engineering discussions, never call everything a "packet". Each layer gives data a precise technical name:</p>
+          <p>In professional systems engineering, calling every piece of data a 'packet' is ambiguous. Each layer defines its own <strong>Protocol Data Unit (PDU)</strong>:</p>
           <ul>
             <li><strong>L4 Transport Layer:</strong> <code>Segment</code> (for TCP) or <code>Datagram</code> (for UDP)</li>
             <li><strong>L3 Network Layer:</strong> <code>Packet</code> (IPv4 / IPv6)</li>
-            <li><strong>L2 Data Link Layer:</strong> <code>Frame</code> (Ethernet / Wi-Fi)</li>
+            <li><strong>L2 Data Link Layer:</strong> <code>Frame</code> (Ethernet II, Wi-Fi)</li>
             <li><strong>L1 Physical Layer:</strong> <code>Bits / Symbols</code></li>
           </ul>
         `
       },
       {
-        heading: "Interactive Visualizer: The 5-Layer Encapsulation Dissector",
+        heading: "Interactive Visualizer: 5-Layer Stack Header Dissector",
         content: `
-          <p>Click through each layer below to inspect the exact byte fields added at each stage of transmission:</p>
+          <p>Click each layer below to dissect the exact byte fields added at each step of transmission:</p>
         `,
         visualizer: "layerStack"
       },
@@ -133,13 +154,13 @@ window.CURRICULUM = [
         visualizer: "packetJourney"
       },
       {
-        heading: "Knowledge Check: Layer Architecture",
+        heading: "Knowledge Check: Encapsulation",
         quiz: {
-          question: "When data moves down from the Transport Layer to the Network Layer during transmission, what is this process called?",
+          question: "When a web server transmits an HTML response, what is the exact order of encapsulation headers added before the bits hit the copper wire?",
           options: [
-            { text: "Encapsulation (wrapping the transport segment inside an IP packet header).", correct: true, feedback: "✅ Correct! Encapsulation wraps higher-layer data with new header metadata as it moves down the stack." },
-            { text: "Decapsulation.", correct: false, feedback: "❌ Incorrect. Decapsulation occurs on the receiving computer as data moves up the stack." },
-            { text: "Compilation.", correct: false, feedback: "❌ Incorrect. Compilation refers to transforming source code into machine code." }
+            { text: "Application Payload ➔ TCP Header (L4) ➔ IP Header (L3) ➔ Ethernet Frame Header & FCS Trailer (L2) ➔ Physical Bits (L1)", correct: true, feedback: "✅ Correct! Encapsulation wraps headers from the top (L7) down to the bottom (L2/L1) before transmission." },
+            { text: "Ethernet Header ➔ IP Header ➔ TCP Header ➔ Application Payload", correct: false, feedback: "❌ Incorrect. That is the physical layout on the wire, but encapsulation adds headers from L7 downwards." },
+            { text: "IP Header ➔ TCP Header ➔ Ethernet Header ➔ Payload", correct: false, feedback: "❌ Incorrect. The transport header is attached directly to the application payload first." }
           ]
         }
       }
@@ -147,61 +168,80 @@ window.CURRICULUM = [
   },
   {
     id: "module-2",
-    title: "2. IPv4, CIDR & Subnetting In-Depth",
-    shortTitle: "IPv4 & Subnetting",
+    title: "2. IPv4, CIDR, Subnetting & NAT In-Depth",
+    shortTitle: "2. IPv4, Subnetting & NAT",
     icon: "🔢",
-    tagline: "Binary AND arithmetic, network prefix vs host ID, CIDR notation, and private IP ranges.",
+    tagline: "Binary AND arithmetic, network prefix vs host ID, CIDR notation, private RFC 1918 ranges, and NAT.",
     sections: [
       {
         heading: "The 32-Bit Binary Structure of IPv4",
         content: `
-          <p>An IPv4 address is not really four numbers—it is a <strong>32-bit unsigned integer</strong> in memory. We write it in "dotted-decimal" notation (like <code>192.168.1.50</code>) purely for human convenience:</p>
+          <p>An IPv4 address is an unsigned <strong>32-bit integer</strong> (from <code>0.0.0.0</code> up to <code>255.255.255.255</code>). We write it in 4 octets purely for human readability:</p>
           <pre class="code-snippet"><code>Dotted Decimal: 192 .     168 .     1 .       50
 Binary (32-bit): 11000000.10101000.00000001.00110010</code></pre>
-          <p>Every IP address contains two pieces of information encoded inside those 32 bits:</p>
+          <p>Every IP address contains two distinct parts:</p>
           <ol>
-            <li><strong>Network Prefix:</strong> Identifies which subnet group the computer belongs to.</li>
-            <li><strong>Host Identifier:</strong> Identifies the specific individual machine within that subnet.</li>
+            <li><strong>Network Prefix:</strong> Identifies which subnet group this machine belongs to.</li>
+            <li><strong>Host ID:</strong> Identifies the specific individual machine on that local subnet.</li>
           </ol>
         `
       },
       {
         heading: "How Binary Subnet Masking Works (Bitwise AND)",
         content: `
-          <p>How does the operating system know if another IP is on the same local switch or requires a gateway router? It performs a bitwise <strong>AND</strong> operation with its Subnet Mask:</p>
+          <p>When Computer A wants to send a packet to another IP address, its operating system kernel checks if the target is on the <strong>same local switch</strong> or requires sending to a <strong>Default Gateway Router</strong>. It calculates this using a bitwise <strong>AND</strong>:</p>
           <pre class="code-snippet"><code>IP Address:   192.168.1.50   ➔  11000000.10101000.00000001.00110010
-Subnet Mask:  255.255.255.0  ➔  11111111.11111111.11111111.00000000
+Subnet Mask:  255.255.255.0  ➔  11111111.11111111.11111111.00000000 (/24)
 ---------------------------------------------------------------------
 Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise AND)</code></pre>
+          <p><strong>The Rule of Usable Hosts:</strong> For any subnet with \(H\) host bits, the total number of usable host machine addresses is \(2^H - 2\):</p>
+          <ul>
+            <li>The <strong>First Address</strong> (all host bits 0) is the <strong>Network Address</strong> (e.g. <code>192.168.1.0</code>).</li>
+            <li>The <strong>Last Address</strong> (all host bits 1) is the <strong>Broadcast Address</strong> (e.g. <code>192.168.1.255</code>).</li>
+          </ul>
         `
       },
       {
-        heading: "Private IP Ranges (RFC 1918) & NAT",
+        heading: "Private IP Ranges (RFC 1918) & NAT (Network Address Translation)",
         content: `
-          <p>Because IPv4 only has ~4.29 billion total addresses, the Internet Engineering Task Force (IETF) reserved three ranges for private, internal networks:</p>
+          <p>Because IPv4 only has ~4.29 billion total addresses, the IETF reserved three non-routable private ranges:</p>
           <ul>
-            <li><code>10.0.0.0/8</code> (10.0.0.0 to 10.255.255.255) — 16,777,216 addresses (used in large enterprise & cloud data centers).</li>
-            <li><code>172.16.0.0/12</code> (172.16.0.0 to 172.31.255.255) — 1,048,576 addresses (often used in container networks like Docker/Kubernetes).</li>
-            <li><code>192.168.0.0/16</code> (192.168.0.0 to 192.168.255.255) — 65,536 addresses (standard home & office LANs).</li>
+            <li><code>10.0.0.0/8</code> (10.0.0.0 – 10.255.255.255): 16,777,216 addresses (Cloud VPCs & enterprise data centers).</li>
+            <li><code>172.16.0.0/12</code> (172.16.0.0 – 172.31.255.255): 1,048,576 addresses (Docker / Kubernetes internal networks).</li>
+            <li><code>192.168.0.0/16</code> (192.168.0.0 – 192.168.255.255): 65,536 addresses (Home & small office LANs).</li>
           </ul>
-          <p>Private addresses cannot route across the public Internet. Your router uses <strong>NAT (Network Address Translation)</strong> to rewrite private IP packets to its single public IP address when accessing the web.</p>
+          <p><strong>NAT (Network Address Translation):</strong> Since private IPs cannot cross the public Internet, your home or cloud gateway router rewrites the internal private IP address and port to its own public IP address in outbound packet headers, keeping an internal translation table (NAT Table) in RAM.</p>
         `
       },
       {
         heading: "Interactive Visualizer: Subnet & Bit-Level Explorer",
         content: `
-          <p>Move the CIDR slider from <code>/8</code> to <code>/30</code> to see how bits split and test subnet reachability:</p>
+          <p>Drag the CIDR slider from <code>/8</code> to <code>/30</code> to see how bits split and test subnet reachability:</p>
         `,
         visualizer: "subnetVisualizer"
       },
       {
+        heading: "Hands-On Lab: Inspecting IP Addresses & Routing Table",
+        content: `
+          <div class="code-preview">
+            <code>ip a</code>
+            <button class="btn-copy" onclick="TerminalApp.runSampleCommand('ip a')">Run in Terminal ↵</button>
+          </div>
+          <div class="code-preview">
+            <code>ip route</code>
+            <button class="btn-copy" onclick="TerminalApp.runSampleCommand('ip route')">Run in Terminal ↵</button>
+          </div>
+        `,
+        terminalPrompt: "ip a"
+      },
+      {
         heading: "Knowledge Check: Subnetting",
         quiz: {
-          question: "On a subnet with prefix 192.168.10.0/24, how many usable machine IP addresses are available?",
+          question: "If a company has a /28 subnet, how many usable host IP addresses can be assigned to servers?",
           options: [
-            { text: "254 usable host addresses (256 total minus Network ID 192.168.10.0 and Broadcast ID 192.168.10.255).", correct: true, feedback: "✅ Correct! 2^(32-24) = 256. Subtracting the network address and broadcast address leaves 254 usable IPs." },
-            { text: "256 usable host addresses.", correct: false, feedback: "❌ Incorrect. The first address (.0) is the network ID and the last address (.255) is reserved for broadcast." },
-            { text: "128 usable host addresses.", correct: false, feedback: "❌ Incorrect. 128 hosts corresponds to a /25 subnet." }
+            { text: "14 usable host addresses (2^(32-28) = 16 total minus Network ID and Broadcast ID).", correct: true, feedback: "✅ Correct! 32 - 28 = 4 host bits. 2^4 = 16 total. Subtracting 2 gives 14 usable IP addresses." },
+            { text: "16 usable host addresses.", correct: false, feedback: "❌ Incorrect. The network ID and broadcast address cannot be assigned to hosts." },
+            { text: "28 usable host addresses.", correct: false, feedback: "❌ Incorrect. 28 is the prefix length (network bits), not the host count." }
           ]
         }
       }
@@ -210,20 +250,20 @@ Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise A
   {
     id: "module-3",
     title: "3. VLANs & 802.1Q Trunking",
-    shortTitle: "VLANs & 802.1Q",
+    shortTitle: "3. VLANs & 802.1Q",
     icon: "🏷️",
     tagline: "Broadcast domain isolation, access vs trunk switch ports, and 802.1Q frame tagging.",
     sections: [
       {
         heading: "The Problem: Broadcast Storms on Flat Networks",
         content: `
-          <p>When a switch receives a broadcast frame (like an ARP query for an unknown IP), it must flood that frame out of <strong>every single connected port</strong>.</p>
-          <p>In a company or data center with 500 computers on one switch, thousands of daily broadcast frames waste CPU cycles on every single machine. Furthermore, any computer on the switch could sniff or intercept unencrypted traffic from any other department.</p>
+          <p>When an L2 switch receives an ARP broadcast frame, it floods that frame out of <strong>every single connected port</strong>.</p>
+          <p>On a large corporate network with hundreds of computers, constant broadcast traffic wastes CPU cycles on every machine and creates major security risks (anyone can listen to unencrypted traffic from other departments).</p>
           <p><strong>VLANs (Virtual Local Area Networks)</strong> solve this by partitioning a single physical switch into multiple isolated logical switches in software!</p>
         `
       },
       {
-        heading: "Access Ports vs Trunk Ports (802.1Q Tagging)",
+        heading: "Access Ports vs Trunk Ports & 802.1Q Tagging",
         content: `
           <div class="tech-comparison-grid">
             <div class="tech-card">
@@ -260,12 +300,12 @@ Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise A
   {
     id: "module-4",
     title: "4. Layer 2 Switching, ARP & MAC Tables",
-    shortTitle: "L2 Switching & ARP",
+    shortTitle: "4. L2 Switching & ARP",
     icon: "🔀",
-    tagline: "How switches learn MAC addresses and how the Address Resolution Protocol bridges L3 to L2.",
+    tagline: "How switches learn MAC addresses, ARP requests/replies, and Spanning Tree basics.",
     sections: [
       {
-        heading: "How Switches Learn: The MAC Address Table",
+        heading: "How Switches Forward Frames: The MAC Table",
         content: `
           <p>Unlike old network hubs that blindly repeated electrical signals on all ports, a modern <strong>Layer 2 Switch</strong> is an intelligent packet forwarder with internal memory.</p>
           <p>When a frame arrives on Port 1 from Source MAC <code>02:42:AC:11:00:02</code>, the switch records in its memory: <em>"MAC 02:42:AC:11:00:02 lives on Port 1."</em></p>
@@ -299,7 +339,7 @@ Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise A
   {
     id: "module-5",
     title: "5. DNS — The Distributed Hierarchical Database",
-    shortTitle: "DNS Lookup System",
+    shortTitle: "5. DNS Lookup System",
     icon: "🔍",
     tagline: "Recursive query delegation, caching, TTLs, and DNS record types.",
     sections: [
@@ -343,7 +383,7 @@ Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise A
   {
     id: "module-6",
     title: "6. TCP vs UDP Deep Dive (Reliability, Flow Control & Sockets)",
-    shortTitle: "TCP & UDP Protocols",
+    shortTitle: "6. TCP & UDP Protocols",
     icon: "🤝",
     tagline: "3-way handshake, sequence numbers, sliding window flow control, and packet drops.",
     sections: [
@@ -381,7 +421,7 @@ Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise A
   {
     id: "module-7",
     title: "7. Application Endpoints & The Web Stack (HTTP, Ports, TLS)",
-    shortTitle: "HTTP, Ports & TLS",
+    shortTitle: "7. HTTP, Ports & TLS",
     icon: "🌐",
     tagline: "Port multiplexing, plain-text HTTP formatting, and cryptographic TLS encryption.",
     sections: [
@@ -417,7 +457,7 @@ Network ID:   192.168.1.0    ➔  11000000.10101000.00000001.00000000 (Bitwise A
   {
     id: "module-8",
     title: "8. Interactive Diagnostic Missions",
-    shortTitle: "Diagnostic Missions",
+    shortTitle: "8. Diagnostic Missions",
     icon: "🧪",
     tagline: "Solve hands-on network outages and debug simulated connectivity issues using real tools.",
     sections: [
