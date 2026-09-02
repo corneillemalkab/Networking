@@ -227,6 +227,8 @@ class App {
         new LayerStackVisualizer("vis-mount-layerStack");
       } else if (sec.visualizer === "topologyVisualizer" && window.TopologyVisualizer) {
         new TopologyVisualizer("vis-mount-topologyVisualizer");
+      } else if (sec.visualizer === "vlanVisualizer" && window.VLANVisualizer) {
+        new VLANVisualizer("vis-mount-vlanVisualizer");
       }
     });
   }
@@ -281,13 +283,13 @@ class App {
       }
     });
 
-    // Terminal toggle (drawer expand/minimize)
+    // Terminal side-by-side toggle
     const toggleBtn = document.getElementById("btn-toggle-terminal");
-    const terminalDrawer = document.getElementById("terminal-drawer");
-    if (toggleBtn && terminalDrawer) {
+    const terminalPanel = document.getElementById("terminal-panel");
+    if (toggleBtn && terminalPanel) {
       toggleBtn.addEventListener("click", () => {
-        terminalDrawer.classList.toggle("drawer-minimized");
-        toggleBtn.textContent = terminalDrawer.classList.contains("drawer-minimized") ? "Open Terminal ▲" : "Minimize Terminal ▼";
+        terminalPanel.classList.toggle("panel-collapsed");
+        toggleBtn.textContent = terminalPanel.classList.contains("panel-collapsed") ? "Open Terminal 💻" : "Hide Terminal ➔";
       });
     }
 

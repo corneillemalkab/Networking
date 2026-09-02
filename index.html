@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Networking Academy — Level 1 (Visual & Hands-On)</title>
+  <title>Networking Academy — Level 0 to Advanced Fundamentals</title>
   <meta name="description" content="A warm, visual, and zero-buzzword interactive networking academy for new engineers with real packet animations and in-browser terminal practice." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -14,8 +14,8 @@
     <div class="brand">
       <span class="brand-icon">⚡</span>
       <div class="brand-text">
-        <h1>Networking Academy <span style="font-weight: normal; opacity: 0.7;">| Level 1</span></h1>
-        <span class="brand-sub">Visual Fundamentals & Hands-On Engineering Sandbox</span>
+        <h1>Networking Academy <span style="font-weight: normal; opacity: 0.7;">| Level 0 to 1</span></h1>
+        <span class="brand-sub">Visual Systems Engineering & Interactive Network Sandbox</span>
       </div>
     </div>
 
@@ -29,16 +29,16 @@
       </div>
 
       <button id="btn-toggle-theme" class="btn-header">☀️ Light Mode</button>
-      <button id="btn-toggle-terminal" class="btn-header" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-primary); border-color: rgba(56, 189, 248, 0.3);">
-        Minimize Terminal ▼
+      <button id="btn-toggle-terminal" class="btn-header btn-term-toggle">
+        Hide Terminal ➔
       </button>
     </div>
   </header>
 
-  <!-- Main Split Layout -->
+  <!-- Main 3-Column Side-by-Side Workspace -->
   <div class="app-layout">
     
-    <!-- Sidebar Navigation -->
+    <!-- Left: Sidebar Navigation -->
     <aside class="sidebar">
       <div class="sidebar-heading">Curriculum Modules</div>
       <nav class="nav-modules" id="nav-modules-list">
@@ -46,17 +46,17 @@
       </nav>
     </aside>
 
-    <!-- Center Stage: Reading, Explanations & Visualizers -->
+    <!-- Center Stage: Reading, Explanations & Wide Visualizers -->
     <main class="content-area-wrapper">
       <div class="main-content" id="module-content-area">
-        <!-- Dynamically populated module sections -->
+        <!-- Dynamically populated module sections & wide visualizers -->
       </div>
-
-      <!-- Docked In-Browser Network Terminal Emulator -->
-      <section class="terminal-drawer" id="terminal-drawer">
-        <div id="terminal-mount" style="height: 100%;"></div>
-      </section>
     </main>
+
+    <!-- Right Side: Side-by-Side Interactive Terminal Panel -->
+    <aside class="terminal-panel" id="terminal-panel">
+      <div id="terminal-mount" style="height: 100%;"></div>
+    </aside>
 
   </div>
 
@@ -65,6 +65,7 @@
   <script src="js/visualizers/packetJourney.js"></script>
   <script src="js/visualizers/layerStack.js"></script>
   <script src="js/visualizers/subnetVisualizer.js"></script>
+  <script src="js/visualizers/vlanVisualizer.js"></script>
   <script src="js/visualizers/dnsVisualizer.js"></script>
   <script src="js/visualizers/tcpHandshake.js"></script>
   <script src="js/visualizers/topologyVisualizer.js"></script>
